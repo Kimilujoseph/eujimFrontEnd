@@ -5,10 +5,10 @@ import AuthLayout from "./layouts/authLayout";
 import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
 import Graduates from "./scenes/graduates/index";
+import JobSeekerProfile from "./scenes/job_seeker_profile";
 import Dashboard from "./scenes/dashboard/index";
 import ProtectedRoute from "./auth/protectedRoute";
 import { AuthProvider } from "./auth/authContext";
-import JobSeekerProfile from "./scenes/jobseekerProfile";
 function App() {
   const [theme, colorMode] = useMode();
 
@@ -34,6 +34,7 @@ function App() {
                     <Routes>
                       <Route path="/graduates" element={<Graduates />} />
                       <Route path="/" element={<Dashboard />} />
+                      <Route path="/profile" element={<JobSeekerProfile />} />
                       <Route
                         path="/user/:id/profile"
                         element={<JobSeekerProfile />}

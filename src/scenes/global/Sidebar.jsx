@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../auth/authContext";
 import {
   Drawer,
@@ -22,16 +22,49 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import MenuIcon from "@mui/icons-material/Menu";
+import PersonIcon from "@mui/icons-material/Person";
+import SchoolIcon from "@mui/icons-material/School";
+import WorkIcon from "@mui/icons-material/Work";
+import HistoryIcon from "@mui/icons-material/History";
+import DescriptionIcon from "@mui/icons-material/Description";
+import BuildIcon from "@mui/icons-material/Build";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useLocation } from "react-router-dom";
 import { tokens } from "../../theme";
 
-const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
-  { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
-  { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
-  { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
-  { text: "Logout", icon: <ReceiptIcon />, to: "/logout" },
-];
+// Define menu items for different roles
+const roleBasedMenuItems = {
+  superAdmin: [
+    { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
+    { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
+    { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
+    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
+  ],
+   Admin: [
+    { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
+    { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
+    { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
+    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
+  ],
+  jobseeker: [
+    { text: "Dashboard", icon: <DashboardIcon />, to: "/dashboard" },
+    { text: "Profile", icon: <PersonIcon />, to: "/profile" },
+    { text: "Education", icon: <SchoolIcon />, to: "/education" },
+    { text: "Skills", icon: <BuildIcon />, to: "/skills" },
+    {
+      text: "Certifications",
+      icon: <DescriptionIcon />,
+      to: "/certifications",
+    },
+    { text: "Interview History", icon: <HistoryIcon />, to: "/interviews" },
+    { text: "Job Applications", icon: <WorkIcon />, to: "/applications" },
+    { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
+  ],
+  // You can add more roles here as needed
+};
+
 const drawerWidth = 240;
 const collapsedWidth = 60;
 
@@ -41,6 +74,9 @@ const Sidebar = ({ isSidebar = true }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const { user } = useAuth();
+
+  // Get menu items based on user role
+  const menuItems = roleBasedMenuItems[user?.role || "admin"];
 
   const getInitials = () => {
     if (!user) return "JD";
@@ -67,6 +103,21 @@ const Sidebar = ({ isSidebar = true }) => {
         return "Job Seeker";
       default:
         return "User";
+    }
+  };
+
+  // Choose avatar color based on role
+  const getAvatarColor = () => {
+    switch (user?.role) {
+      case "jobseeker":
+        return colors.blueAccent[500];
+      case "admin":
+      case "superAdmin":
+        return colors.greenAccent[500];
+      case "employer":
+        return colors.redAccent[500];
+      default:
+        return colors.grey[500];
     }
   };
 
@@ -113,13 +164,12 @@ const Sidebar = ({ isSidebar = true }) => {
             </Tooltip>
           </Box>
 
-          {/* Always show avatar - different sizes based on collapsed state */}
           <Avatar
             alt={getFullName()}
             sx={{
               width: collapsed ? 40 : 100,
               height: collapsed ? 40 : 100,
-              bgcolor: colors.greenAccent[500],
+              bgcolor: getAvatarColor(),
               fontSize: collapsed ? "1rem" : "2rem",
               mb: collapsed ? 0 : 1,
             }}
@@ -127,7 +177,6 @@ const Sidebar = ({ isSidebar = true }) => {
             {getInitials()}
           </Avatar>
 
-          {/* Only show name and role when expanded */}
           {!collapsed && (
             <>
               <Typography variant="h6" fontWeight={700}>
