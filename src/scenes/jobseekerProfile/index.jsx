@@ -24,15 +24,13 @@ import {
   ListItemText,
   ListItemIcon,
   Link,
+  IconButton,
 } from "@mui/material";
 import {
   School as SchoolIcon,
   LocationOn as LocationIcon,
-  Link as LinkIcon,
   Work as WorkIcon,
-  Star as StarIcon,
   Description as DescriptionIcon,
-  CalendarToday as CalendarIcon,
   Email as EmailIcon,
   LinkedIn as LinkedInIcon,
   GitHub as GitHubIcon,
@@ -92,7 +90,6 @@ const JobSeekerProfile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -110,10 +107,6 @@ const JobSeekerProfile = () => {
     fetchData();
   }, [id]);
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
-
   if (loading) return <LinearProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!user) return <Alert severity="info">User not found</Alert>;
@@ -124,123 +117,277 @@ const JobSeekerProfile = () => {
       </Alert>
     );
 
+  // Style for links that works in both light and dark modes
+  const linkStyle = {
+    color: theme.palette.mode === 'dark' ? colors.blueAccent[300] : colors.blueAccent[700],
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    }
+  };
+
   return (
-    <Box m="20px">
+    <Box sx={{ maxWidth: 1128, margin: "0 auto", p: 2 }}>
+      {/* Cover Photo */}
       <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
+        sx={{
+          height: 200,
+          backgroundColor: colors.primary[500],
+          borderRadius: "8px 8px 0 0",
+          position: "relative",
+          mb: 12,
+        }}
       >
-        <Typography variant="h2" fontWeight="bold">
-          {user.first_name} {user.second_name}'s Profile
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => navigate(-1)}
+        {/* Profile Photo */}
+        <Avatar
           sx={{
-            bgcolor: colors.greenAccent[600],
-            "&:hover": { bgcolor: colors.greenAccent[700] },
+            width: 152,
+            height: 152,
+            fontSize: "3.5rem",
+            bgcolor: colors.greenAccent[500],
+            position: "absolute",
+            bottom: -76,
+            left: 24,
+            border: "4px solid",
+            borderColor: colors.primary[700],
           }}
         >
-          Back to Users
-        </Button>
+          {user.first_name?.charAt(0)}
+          {user.second_name?.charAt(0)}
+        </Avatar>
       </Box>
 
-      <Grid container spacing={3}>
-        {/* Left Column - Profile Overview */}
-        <Grid item xs={12} md={4}>
-          <Card
-            sx={{
-              mb: 3,
-              bgcolor: colors.primary[700],
-              border: `1px solid ${colors.primary[400]}`,
-            }}
-          >
-            <CardContent>
-              <Box display="flex" flexDirection="column" alignItems="center">
-                <Avatar
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    fontSize: "2.5rem",
-                    bgcolor: colors.greenAccent[500],
-                    mb: 2,
-                  }}
-                >
-                  {user.first_name?.charAt(0)}
-                  {user.second_name?.charAt(0)}
-                </Avatar>
-
-                <Box display="flex" gap={1} my={2}>
-                  <Chip
-                    label={user.isVerified ? "Verified" : "Pending"}
-                    color={user.isVerified ? "success" : "warning"}
-                  />
-                  {!user.isActive && <Chip label="Inactive" color="error" />}
-                </Box>
-              </Box>
-
-              <Divider
-                sx={{
-                  my: 2,
-                  borderColor: colors.primary[400],
-                }}
+      {/* Profile Header */}
+      <Box sx={{ px: 3, mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
+          <Box>
+            <Typography variant="h4" fontWeight="bold">
+              {user.first_name} {user.second_name}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" gutterBottom>
+              {user.profile?.headline || "Job Seeker"}
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              {user.profile?.location && (
+                <>
+                  <LocationIcon fontSize="small" color="action" />
+                  <Typography variant="body2" color="text.secondary">
+                    {user.profile.location}
+                  </Typography>
+                </>
+              )}
+              {user.profile?.linkedin_url && (
+                <Link href={user.profile.linkedin_url} target="_blank" sx={linkStyle}>
+                  <LinkedInIcon fontSize="small" sx={{ ml: 1 }} />
+                </Link>
+              )}
+              {user.profile?.github_url && (
+                <Link href={user.profile.github_url} target="_blank" sx={linkStyle}>
+                  <GitHubIcon fontSize="small" sx={{ ml: 1 }} />
+                </Link>
+              )}
+            </Box>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Chip
+                label={user.isVerified ? "Verified" : "Pending"}
+                color={user.isVerified ? "success" : "warning"}
+                size="small"
               />
+              {!user.isActive && <Chip label="Inactive" color="error" size="small" />}
+            </Box>
+          </Box>
+          <Box>
+            <Button
+              variant="contained"
+              onClick={() => navigate(-1)}
+              sx={{
+                bgcolor: colors.greenAccent[600],
+                "&:hover": { bgcolor: colors.greenAccent[700] },
+              }}
+            >
+              Back to Users
+            </Button>
+          </Box>
+        </Box>
+      </Box>
 
+      {/* Main Content */}
+      <Grid container spacing={3}>
+        {/* Left Column */}
+        <Grid item xs={12} md={8}>
+          {/* About Section */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="About" />
+            <CardContent>
+              <Typography variant="body1">
+                {user.profile?.bio_data || "No bio information available"}
+              </Typography>
+            </CardContent>
+          </Card>
+
+          {/* Experience Section */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="Experience" />
+            <CardContent>
               <List>
-                <ListItem sx={{ px: 0 }}>
-                  <ListItemIcon
-                    sx={{ minWidth: "36px", color: colors.greenAccent[400] }}
-                  >
-                    <EmailIcon />
+                <ListItem>
+                  <ListItemIcon>
+                    <WorkIcon sx={{ color: colors.blueAccent[500] }} />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Email"
-                    primaryTypographyProps={{ color: colors.grey[100] }}
-                    secondary={user.email}
-                    secondaryTypographyProps={{ color: colors.grey[400] }}
+                    primary="Senior Developer"
+                    secondary={
+                      <>
+                        <Typography component="span" display="block">
+                          Tech Company Inc.
+                        </Typography>
+                        <Typography component="span" display="block">
+                          Jan 2020 - Present · 3 yrs 6 mos
+                        </Typography>
+                        <Typography component="span" display="block">
+                          San Francisco, California
+                        </Typography>
+                      </>
+                    }
                   />
                 </ListItem>
+              </List>
+            </CardContent>
+          </Card>
 
-                {user.profile?.location && (
-                  <ListItem>
+          {/* Education Section */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="Education" />
+            <CardContent>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <SchoolIcon sx={{ color: colors.blueAccent[500] }} />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={user.profile?.InstitutionName || "University"}
+                    secondary={
+                      <>
+                        <Typography component="span" display="block">
+                          Bachelor's Degree, Computer Science
+                        </Typography>
+                        <Typography component="span" display="block">
+                          {user.profile?.year_of_joining} -{" "}
+                          {user.profile?.year_of_completion}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
+
+          {/* Skills Section */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="Skills" />
+            <CardContent>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {mockSkills.map((skill) => (
+                  <Chip
+                    key={skill.id}
+                    label={skill.name}
+                    variant="outlined"
+                    sx={{ borderRadius: 1 }}
+                  />
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Certifications Section */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="Licenses & Certifications" />
+            <CardContent>
+              <List>
+                {mockCertifications.map((cert) => (
+                  <ListItem key={cert.id}>
                     <ListItemIcon>
-                      <LocationIcon />
+                      <PdfIcon sx={{ color: colors.redAccent[500] }} />
                     </ListItemIcon>
                     <ListItemText
-                      primary="Location"
-                      secondary={user.profile.location}
+                      primary={cert.description}
+                      secondary={
+                        <>
+                          <Typography component="span" display="block">
+                            {cert.issuer} · Issued {new Date(cert.awardedDate).toLocaleDateString()}
+                          </Typography>
+                          <Link href={cert.uploadPath} target="_blank" sx={linkStyle}>
+                            Show credential
+                          </Link>
+                        </>
+                      }
                     />
                   </ListItem>
-                )}
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
 
+        {/* Right Column */}
+        <Grid item xs={12} md={4}>
+          {/* Profile Completion Card */}
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="subtitle1" gutterBottom>
+                Profile completion
+              </Typography>
+              <LinearProgress variant="determinate" value={75} sx={{ mb: 1, height: 8, borderRadius: 4 }} />
+              <Typography variant="body2" color="text.secondary">
+                75% complete
+              </Typography>
+            </CardContent>
+          </Card>
+
+          {/* Contact Info Card */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="Contact Information" />
+            <CardContent>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <EmailIcon color="action" />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={user.email}
+                    primaryTypographyProps={{ sx: linkStyle }}
+                  />
+                </ListItem>
                 {user.profile?.linkedin_url && (
                   <ListItem>
                     <ListItemIcon>
-                      <LinkedInIcon />
+                      <LinkedInIcon color="action" />
                     </ListItemIcon>
                     <ListItemText
-                      primary="LinkedIn"
-                      secondary={
-                        <Link href={user.profile.linkedin_url} target="_blank">
-                          View Profile
+                      primary={
+                        <Link href={user.profile.linkedin_url} target="_blank" sx={linkStyle}>
+                          LinkedIn Profile
                         </Link>
                       }
                     />
                   </ListItem>
                 )}
-
                 {user.profile?.github_url && (
                   <ListItem>
                     <ListItemIcon>
-                      <GitHubIcon />
+                      <GitHubIcon color="action" />
                     </ListItemIcon>
                     <ListItemText
-                      primary="GitHub"
-                      secondary={
-                        <Link href={user.profile.github_url} target="_blank">
-                          View Profile
+                      primary={
+                        <Link href={user.profile.github_url} target="_blank" sx={linkStyle}>
+                          GitHub Profile
                         </Link>
                       }
                     />
@@ -249,211 +396,35 @@ const JobSeekerProfile = () => {
               </List>
             </CardContent>
           </Card>
-        </Grid>
 
-        {/* Right Column - Detailed Information */}
-        <Grid item xs={12} md={8}>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            sx={{
-              mb: 3,
-              "& .MuiTab-root": {
-                color: colors.grey[400],
-                "&.Mui-selected": {
-                  color: colors.greenAccent[400],
-                },
-              },
-            }}
-          >
-            <Tab label="Overview" />
-            <Tab label="Skills" />
-            <Tab label="Education" />
-            <Tab label="Certifications" />
-            <Tab label="Interviews" />
-          </Tabs>
-
-          <Box
-            sx={{
-              minHeight: "500px",
-              position: "relative",
-            }}
-          >
-            {activeTab === 0 && (
-              <Card sx={{ bgcolor: colors.primary[700] }}>
-                <CardContent>
-                  {user.profile?.bio_data && (
-                    <>
-                      <Typography variant="h6" gutterBottom>
-                        Professional Summary
-                      </Typography>
-                      <Typography paragraph sx={{ color: colors.grey[400] }}>
-                        {user.profile.bio_data}
-                      </Typography>
-                      <Divider
-                        sx={{ my: 2, borderColor: colors.primary[400] }}
-                      />
-                    </>
-                  )}
-
-                  {user.profile?.about && (
-                    <>
-                      <Typography variant="h6" gutterBottom>
-                        About
-                      </Typography>
-                      <Typography paragraph>{user.profile.about}</Typography>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 1 && (
-              <Card sx={{ bgcolor: colors.primary[700] }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Skills & Proficiencies
-                  </Typography>
-                  <Grid container spacing={2}>
-                    {mockSkills.map((skill) => (
-                      <Grid item xs={12} sm={6} md={4} key={skill.id}>
-                        <Paper sx={{ p: 2 }}>
-                          <Typography fontWeight="bold">
-                            {skill.name}
+          {/* Interviews Card */}
+          <Card sx={{ mb: 3 }}>
+            <CardHeader title="Interview History" />
+            <CardContent>
+              <List>
+                {mockInterviews.map((interview) => (
+                  <ListItem key={interview.id}>
+                    <ListItemIcon>
+                      <WorkIcon color="action" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`${interview.position} at ${interview.company}`}
+                      secondary={
+                        <>
+                          <Typography component="span" display="block">
+                            {new Date(interview.date).toLocaleDateString()}
                           </Typography>
-                          <Chip
-                            label={skill.proficiency_level}
-                            color={
-                              skill.proficiency_level === "professional"
-                                ? "success"
-                                : skill.proficiency_level === "midlevel"
-                                ? "warning"
-                                : "info"
-                            }
-                            size="small"
-                            sx={{ mt: 1 }}
-                          />
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 2 && (
-              <Card sx={{ bgcolor: colors.primary[700] }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Education
-                  </Typography>
-                  <List>
-                    <ListItem>
-                      <ListItemIcon>
-                        <SchoolIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary="University Education"
-                        secondary={
-                          <>
-                            <Typography component="span" display="block">
-                              {user.profile.year_of_joining} -{" "}
-                              {user.profile.year_of_completion}
-                            </Typography>
-                            <Typography component="span" display="block">
-                              {user.profile.InstitutionName || "University"}
-                            </Typography>
-                          </>
-                        }
-                      />
-                    </ListItem>
-                  </List>
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 3 && (
-              <Card sx={{ bgcolor: colors.primary[700] }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Certifications
-                  </Typography>
-                  <Grid container spacing={2}>
-                    {mockCertifications.map((cert) => (
-                      <Grid item xs={12} sm={6} md={4} key={cert.id}>
-                        <Paper sx={{ p: 2, height: "100%" }}>
-                          <Box display="flex" alignItems="center" mb={1}>
-                            <PdfIcon
-                              sx={{ mr: 1, color: colors.redAccent[500] }}
-                            />
-                            <Typography variant="subtitle1">
-                              {cert.issuer}
-                            </Typography>
-                          </Box>
-                          <Typography variant="body2" color="text.secondary">
-                            Awarded:{" "}
-                            {new Date(cert.awardedDate).toLocaleDateString()}
+                          <Typography component="span" display="block">
+                            Status: {interview.status}
                           </Typography>
-                          {cert.uploadPath && (
-                            <Button
-                              fullWidth
-                              variant="outlined"
-                              size="small"
-                              sx={{ mt: 1 }}
-                              onClick={() =>
-                                window.open(cert.uploadPath, "_blank")
-                              }
-                            >
-                              View Certificate
-                            </Button>
-                          )}
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-              </Card>
-            )}
-
-            {activeTab === 4 && (
-              <Card sx={{ bgcolor: colors.primary[700] }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Interview History
-                  </Typography>
-                  <List>
-                    {mockInterviews.map((interview) => (
-                      <div key={interview.id}>
-                        <ListItem>
-                          <ListItemIcon>
-                            <WorkIcon />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={`${interview.position} at ${interview.company}`}
-                            secondary={
-                              <>
-                                <Typography component="span" display="block">
-                                  Date:{" "}
-                                  {new Date(
-                                    interview.date
-                                  ).toLocaleDateString()}
-                                </Typography>
-                                <Typography component="span" display="block">
-                                  Status: {interview.status} • Result:{" "}
-                                  {interview.result}
-                                </Typography>
-                              </>
-                            }
-                          />
-                        </ListItem>
-                        <Divider variant="inset" component="li" />
-                      </div>
-                    ))}
-                  </List>
-                </CardContent>
-              </Card>
-            )}
-          </Box>
+                        </>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
     </Box>

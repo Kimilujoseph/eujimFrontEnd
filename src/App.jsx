@@ -9,6 +9,7 @@ import Dashboard from "./scenes/dashboard/index";
 import ProtectedRoute from "./auth/protectedRoute";
 import { AuthProvider } from "./auth/authContext";
 import JobSeekerProfile from "./scenes/jobseekerProfile";
+import SettingsUserProfile from "./scenes/settings/index";
 function App() {
   const [theme, colorMode] = useMode();
 
@@ -37,6 +38,10 @@ function App() {
                       <Route
                         path="/user/:id/profile"
                         element={<JobSeekerProfile />}
+                      />
+                      <Route
+                        path="/settings"
+                        element={<SettingsUserProfile />}
                       />
                     </Routes>
                   </MainLayout>

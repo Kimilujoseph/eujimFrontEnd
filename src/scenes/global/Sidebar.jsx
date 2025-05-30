@@ -29,7 +29,7 @@ const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
   { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
   { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
-  { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+  { text: "Profile", icon: <PieChartIcon />, to: "/settings" }, // updated path
   { text: "Logout", icon: <ReceiptIcon />, to: "/logout" },
 ];
 const drawerWidth = 240;
