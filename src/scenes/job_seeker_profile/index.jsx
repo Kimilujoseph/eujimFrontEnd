@@ -138,6 +138,7 @@ const JobSeekerProfile = () => {
   // Education CRUD Operations
   const handleAddEducation = async () => {
     try {
+      console.log("New Education Data:", newEducation);
       await api.post("/graduate/education/create", newEducation);
       showSnackbar("Education added successfully");
       setNewEducation({
@@ -151,6 +152,7 @@ const JobSeekerProfile = () => {
         description: "",
         school_logo: "",
       });
+
       fetchProfileData();
     } catch (error) {
       showSnackbar("Error adding education", "error");

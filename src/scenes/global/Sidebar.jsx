@@ -41,7 +41,7 @@ const roleBasedMenuItems = {
     { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
-   Admin: [
+  Admin: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
     { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
     { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
@@ -49,17 +49,9 @@ const roleBasedMenuItems = {
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   jobseeker: [
-    { text: "Dashboard", icon: <DashboardIcon />, to: "/dashboard" },
+    { text: "Dashboard", icon: <DashboardIcon />, to: "/job-seeker-dashboard" },
     { text: "Profile", icon: <PersonIcon />, to: "/profile" },
-    { text: "Education", icon: <SchoolIcon />, to: "/education" },
-    { text: "Skills", icon: <BuildIcon />, to: "/skills" },
-    {
-      text: "Certifications",
-      icon: <DescriptionIcon />,
-      to: "/certifications",
-    },
     { text: "Interview History", icon: <HistoryIcon />, to: "/interviews" },
-    { text: "Job Applications", icon: <WorkIcon />, to: "/applications" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   // You can add more roles here as needed
