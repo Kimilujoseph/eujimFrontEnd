@@ -1,53 +1,74 @@
-import {
-  Grid,
+import { 
   TextField,
   Button,
   Checkbox,
   FormControlLabel,
-  Box,
-  Typography,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 
 const EducationForm = ({ education, onChange, onSubmit }) => (
-  <Box mt={4} p={2} border={1} borderRadius={2} borderColor="divider">
-    <Typography variant="h6" mb={2}>
+  <div className="mt-8 p-4 md:p-6 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 shadow-sm transition-all duration-300">
+    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
       Add New Education
-    </Typography>
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
+    </h3>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      {/* Institution Name */}
+      <div className="md:col-span-2">
         <TextField
           fullWidth
           label="Institution Name"
           name="institution_name"
           value={education.institution_name}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           required
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12} md={6}>
+      </div>
+
+      {/* Qualification */}
+      <div>
         <TextField
           fullWidth
           label="Qualification"
           name="qualification"
           value={education.qualification}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           required
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12} md={6}>
+      </div>
+
+      {/* Degree Level */}
+      <div>
         <TextField
           fullWidth
           label="Degree Level"
           name="degree"
           value={education.degree}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           required
           select
           SelectProps={{ native: true }}
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         >
           <option value=""></option>
           <option value="certificate">Certificate</option>
@@ -56,19 +77,29 @@ const EducationForm = ({ education, onChange, onSubmit }) => (
           <option value="master">Master's Degree</option>
           <option value="phd">PhD</option>
         </TextField>
-      </Grid>
-      <Grid item xs={12} md={6}>
+      </div>
+
+      {/* Field of Study */}
+      <div className="md:col-span-2">
         <TextField
           fullWidth
           label="Field of Study"
           name="field_of_study"
           value={education.field_of_study}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           required
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12} md={6}>
+      </div>
+
+      {/* Start Year */}
+      <div>
         <TextField
           fullWidth
           label="Start Year"
@@ -76,12 +107,20 @@ const EducationForm = ({ education, onChange, onSubmit }) => (
           type="number"
           value={education.start_year}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           required
           inputProps={{ min: 1900, max: new Date().getFullYear() }}
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12} md={6}>
+      </div>
+
+      {/* End Year */}
+      <div>
         <TextField
           fullWidth
           label="End Year (or expected)"
@@ -89,12 +128,20 @@ const EducationForm = ({ education, onChange, onSubmit }) => (
           type="number"
           value={education.end_year}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           required
           inputProps={{ min: 1900, max: new Date().getFullYear() + 10 }}
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12}>
+      </div>
+
+      {/* Currently Studying */}
+      <div className="md:col-span-2 py-2">
         <FormControlLabel
           control={
             <Checkbox
@@ -109,47 +156,68 @@ const EducationForm = ({ education, onChange, onSubmit }) => (
                   },
                 })
               }
+              className="dark:text-blue-400"
             />
           }
           label="I am currently studying here"
+          className="dark:text-gray-300"
         />
-      </Grid>
-      <Grid item xs={12}>
+      </div>
+
+      {/* Description */}
+      <div className="md:col-span-2">
         <TextField
           fullWidth
           label="Description"
           name="description"
           value={education.description}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           multiline
           rows={4}
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12}>
+      </div>
+
+      {/* School Logo URL */}
+      <div className="md:col-span-2">
         <TextField
           fullWidth
           label="School Logo URL"
           name="school_logo"
           value={education.school_logo}
           onChange={onChange}
-          margin="normal"
+          className="w-full"
           placeholder="https://example.com/logo.png"
+          InputProps={{
+            className: "dark:text-white"
+          }}
+          InputLabelProps={{
+            className: "dark:text-gray-400"
+          }}
         />
-      </Grid>
-      <Grid item xs={12}>
+      </div>
+
+      {/* Submit Button */}
+      <div className="md:col-span-2 mt-2">
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onSubmit}
           fullWidth
           size="large"
+          className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white py-3 font-medium transition-colors duration-300"
         >
           Add Education
         </Button>
-      </Grid>
-    </Grid>
-  </Box>
+      </div>
+    </div>
+  </div>
 );
 
 export default EducationForm;
