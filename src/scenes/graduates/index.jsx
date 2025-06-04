@@ -1,5 +1,4 @@
 import {
-  Box,
   IconButton,
   Dialog,
   DialogTitle,
@@ -63,28 +62,19 @@ const Graduates = () => {
   const [role, setRole] = useState("jobseeker");
   const [showPassword, setShowPassword] = useState(false);
   const [createErrors, setCreateErrors] = useState({});
-  // Dialog states
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [actionType, setActionType] = useState("");
-
-  // Notification states
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
-
-  // Pagination states
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
-
-  // Search state
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Action menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
@@ -125,7 +115,6 @@ const Graduates = () => {
       });
       setOpenCreateModal(false);
       fetchUsers();
-      // Reset form
       setFirstName("");
       setSecondName("");
       setEmail("");
@@ -140,7 +129,6 @@ const Graduates = () => {
           message: "Session expired. Please login again.",
           severity: "error",
         });
-        // Handle logout logic here if needed
       } else {
         setSnackbar({
           open: true,
@@ -256,14 +244,10 @@ const Graduates = () => {
       headerName: "Name",
       flex: 1,
       renderCell: (params) => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <div className="flex items-center gap-2">
           <Avatar
-            sx={{
-              bgcolor: colors.greenAccent[500],
-              width: 32,
-              height: 32,
-              fontSize: "0.875rem",
-            }}
+            className="w-8 h-8 text-sm"
+            sx={{ bgcolor: colors.greenAccent[500] }}
           >
             {params.row.firstName?.charAt(0)}
             {params.row.secondName?.charAt(0)}
@@ -272,7 +256,7 @@ const Graduates = () => {
             {params.row.firstName} {params.row.secondName}
             {params.row.is_deleted && " (Deleted)"}
           </span>
-        </Box>
+        </div>
       ),
     },
     { field: "email", headerName: "Email", flex: 1.5 },
@@ -281,10 +265,10 @@ const Graduates = () => {
       headerName: "Role",
       flex: 0.8,
       renderCell: (params) => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <div className="flex items-center gap-1">
           {getRoleIcon(params.row.role)}
           {params.row.role || "N/A"}
-        </Box>
+        </div>
       ),
     },
     {
@@ -292,14 +276,7 @@ const Graduates = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => (
-        <Box
-          display="flex"
-          gap={1}
-          alignItems="center"
-          flexWrap="nowrap"
-          mt={1.7}
-          sx={{ overflow: "visible" }}
-        >
+        <div className="flex flex-wrap items-center gap-1 mt-1 overflow-visible">
           <Chip
             icon={params.row.isVerified ? <VerifiedIcon /> : <PendingIcon />}
             label={params.row.isVerified ? "Verified" : "Pending"}
@@ -322,7 +299,7 @@ const Graduates = () => {
               size="small"
             />
           )}
-        </Box>
+        </div>
       ),
     },
     {
@@ -330,7 +307,7 @@ const Graduates = () => {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => (
-        <Box>
+        <div>
           <IconButton
             onClick={(e) => handleMenuClick(e, params.row)}
             sx={{ color: colors.grey[100] }}
@@ -345,9 +322,9 @@ const Graduates = () => {
             <MenuItem
               onClick={() => navigate(`/user/${params.row.id}/profile`)}
             >
-              <Box display="flex" alignItems="center">
-                <VisibilityIcon sx={{ mr: 1 }} /> View Profile
-              </Box>
+              <div className="flex items-center">
+                <VisibilityIcon className="mr-2" /> View Profile
+              </div>
             </MenuItem>
 
             {!params.row.is_deleted && [
@@ -359,14 +336,14 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
+                <div className="flex items-center">
                   {params.row.is_suspended ? (
-                    <VerifiedIcon sx={{ mr: 1 }} />
+                    <VerifiedIcon className="mr-2" />
                   ) : (
-                    <SuspendedIcon sx={{ mr: 1 }} />
+                    <SuspendedIcon className="mr-2" />
                   )}
                   {params.row.is_suspended ? "Unsuspend" : "Suspend"}
-                </Box>
+                </div>
               </MenuItem>,
               <MenuItem
                 key="verify"
@@ -376,14 +353,14 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
+                <div className="flex items-center">
                   {params.row.isVerified ? (
-                    <PendingIcon sx={{ mr: 1 }} />
+                    <PendingIcon className="mr-2" />
                   ) : (
-                    <VerifiedIcon sx={{ mr: 1 }} />
+                    <VerifiedIcon className="mr-2" />
                   )}
                   {params.row.isVerified ? "Unverify" : "Verify"}
-                </Box>
+                </div>
               </MenuItem>,
               <MenuItem
                 key="delete"
@@ -393,9 +370,9 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
-                  <DeleteIcon sx={{ mr: 1 }} /> Delete
-                </Box>
+                <div className="flex items-center">
+                  <DeleteIcon className="mr-2" /> Delete
+                </div>
               </MenuItem>,
             ]}
 
@@ -407,18 +384,17 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
-                  <RestoreIcon sx={{ mr: 1 }} /> Restore
-                </Box>
+                <div className="flex items-center">
+                  <RestoreIcon className="mr-2" /> Restore
+                </div>
               </MenuItem>
             )}
           </Menu>
-        </Box>
+        </div>
       ),
     },
   ];
 
-  // Filter users based on search term
   const filteredUsers = users.filter((user) => {
     const searchLower = searchTerm.toLowerCase();
     return (
@@ -430,21 +406,20 @@ const Graduates = () => {
   });
 
   return (
-    <Box m="20px">
+    <div className="m-5">
       <Header
         title="USER MANAGEMENT"
         subtitle={
-          <Box display="flex" alignItems="center" gap={1}>
+          <div className="flex flex-col w-full gap-2 sm:flex-row sm:items-center">
             <Button
               variant="contained"
               onClick={() => setOpenCreateModal(true)}
               sx={{
                 background: colors.greenAccent[600],
                 color: colors.grey[900],
-                "&:hover": {
-                  background: colors.greenAccent[700],
-                },
+                "&:hover": { background: colors.greenAccent[700] },
               }}
+              className="w-full sm:w-auto"
             >
               Create User
             </Button>
@@ -459,16 +434,16 @@ const Graduates = () => {
                 ),
               }}
               sx={{
-                width: 300,
                 "& .MuiOutlinedInput-root": {
                   color: colors.grey[100],
                   "& fieldset": { borderColor: colors.grey[700] },
                   "&:hover fieldset": { borderColor: colors.grey[500] },
                 },
               }}
+              className="w-full sm:w-72"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </Box>
+          </div>
         }
       />
 
@@ -499,44 +474,22 @@ const Graduates = () => {
         </Alert>
       </Snackbar>
 
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": { border: "none" },
-          "& .MuiDataGrid-cell": { borderBottom: "none" },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-        }}
-      >
+      <div className="w-full mt-10 h-[75vh] overflow-x-auto">
         <Dialog
           open={openCreateModal}
           onClose={() => setOpenCreateModal(false)}
         >
-          <Box
-            component="form"
+          <form
             onSubmit={handleCreateUser}
-            sx={{
-              p: 4,
-              background: colors.primary[400],
-              minWidth: 400,
-            }}
+            className="p-6 min-w-[90vw] sm:min-w-[400px]"
+            style={{ background: colors.primary[400] }}
           >
-            <DialogTitle sx={{ color: colors.grey[100], textAlign: "center" }}>
+            <DialogTitle className="text-center" style={{ color: colors.grey[100] }}>
               Create New User
             </DialogTitle>
             <DialogContent>
               {createErrors.non_field_errors && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" className="mb-4">
                   {createErrors.non_field_errors}
                 </Alert>
               )}
@@ -556,6 +509,7 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
 
               <TextField
@@ -573,6 +527,7 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
 
               <TextField
@@ -600,9 +555,10 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
 
-              <FormControl fullWidth margin="normal" variant="filled">
+              <FormControl fullWidth margin="normal" variant="filled" className="mt-4">
                 <InputLabel style={{ color: colors.grey[300] }}>
                   Role
                 </InputLabel>
@@ -651,12 +607,13 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
             </DialogContent>
-            <DialogActions sx={{ justifyContent: "center", pb: 0 }}>
+            <DialogActions className="flex justify-center pb-0">
               <Button
                 onClick={() => setOpenCreateModal(false)}
-                sx={{ color: colors.grey[300] }}
+                style={{ color: colors.grey[300] }}
               >
                 Cancel
               </Button>
@@ -666,15 +623,13 @@ const Graduates = () => {
                 sx={{
                   background: colors.greenAccent[600],
                   color: colors.grey[900],
-                  "&:hover": {
-                    background: colors.greenAccent[700],
-                  },
+                  "&:hover": { background: colors.greenAccent[700] },
                 }}
               >
                 Create User
               </Button>
             </DialogActions>
-          </Box>
+          </form>
         </Dialog>
         <DataGrid
           rows={filteredUsers}
@@ -686,7 +641,7 @@ const Graduates = () => {
           slots={{
             loadingOverlay: LinearProgress,
             toolbar: () => (
-              <Box sx={{ p: 1 }}>
+              <div className="p-2">
                 <Button
                   startIcon={<SearchIcon />}
                   onClick={() => fetchUsers()}
@@ -694,12 +649,27 @@ const Graduates = () => {
                 >
                   Refresh
                 </Button>
-              </Box>
+              </div>
             ),
           }}
+          sx={{
+            "& .MuiDataGrid-root": { border: "none" },
+            "& .MuiDataGrid-cell": { borderBottom: "none" },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.blueAccent[700],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.primary[400],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              backgroundColor: colors.blueAccent[700],
+            },
+          }}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
