@@ -234,26 +234,29 @@ const JobSeekerDashboard = () => {
 
         {/* Skill Distribution */}
         <div className={`md:col-span-3 rounded-lg p-4 shadow-md ${theme.palette.mode === "dark" ? "bg-gray-800" : "bg-white"}`}>
-          <Typography variant="h6" className="mb-3 font-semibold">
-            Skill Distribution
-          </Typography>
-          <div className="h-64">
-            <DoughnutChart
-              data={[
-                { id: "Beginner", value: skill_distribution.begginner },
-                { id: "Intermediate", value: skill_distribution.intermediate },
-                { id: "Mid Level", value: skill_distribution.midlevel },
-                { id: "Professional", value: skill_distribution.proffessional },
-              ]}
-              colors={[
-                colors.redAccent[500],
-                colors.blueAccent[500],
-                colors.greenAccent[500],
-                colors.greenAccent[700],
-              ]}
-            />
-          </div>
-        </div>
+  <Typography 
+    variant="h6" 
+    className="mb-3 font-semibold text-lg md:text-xl"
+  >
+    Skill Distribution
+  </Typography>
+  <div className="h-64 sm:h-72 md:h-80 lg:h-96">
+    <DoughnutChart
+      data={[
+        { id: "Beginner", value: skill_distribution.begginner },
+        { id: "Intermediate", value: skill_distribution.intermediate },
+        { id: "Mid Level", value: skill_distribution.midlevel },
+        { id: "Professional", value: skill_distribution.proffessional },
+      ]}
+      colors={[
+        colors.redAccent[500],
+        colors.blueAccent[500],
+        colors.greenAccent[500],
+        colors.greenAccent[700],
+      ]}
+    />
+  </div>
+</div>
 
         {/* Education Distribution */}
         <div className={`md:col-span-3 rounded-lg p-4 shadow-md ${theme.palette.mode === "dark" ? "bg-gray-800" : "bg-white"}`}>
