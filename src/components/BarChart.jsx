@@ -35,10 +35,10 @@ const BarChart = ({ data, keys, indexBy, isInteractive = false }) => {
         },
       }}
       margin={{
-        top: 30,
-        right: data.length > 5 ? 30 : 10,
-        bottom: data.length > 5 ? 100 : 60,
-        left: 50
+        top: 10,
+        right: data.length > 5 ? 10 :5,
+        bottom: data.length > 5 ? 100 :60,
+        left: 70,
       }}
       padding={0.4}
       colors={({ id, data }) => data[`${id}Color`] || colors.greenAccent[500]}
@@ -46,7 +46,6 @@ const BarChart = ({ data, keys, indexBy, isInteractive = false }) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: data.length > 5 ? -45 : 0,
-        legend: "Certifications",
         legendPosition: "middle",
         legendOffset: data.length > 5 ? 70 : 40,
         legendText: { fontSize: '12px' }
@@ -55,7 +54,6 @@ const BarChart = ({ data, keys, indexBy, isInteractive = false }) => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: "Number of Graduates",
         legendPosition: "middle",
         legendOffset: -40,
         format: value =>

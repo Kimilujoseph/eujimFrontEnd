@@ -113,19 +113,20 @@ const JobSeekerDashboard = () => {
           title="JOB SEEKER ANALYTICS DASHBOARD"
           subtitle="Comprehensive Overview of Your Job Search Progress"
         />
-        <Button
-          sx={{
-            backgroundColor: colors.blueAccent[700],
-            color: colors.grey[100],
-            "&:hover": {
-              backgroundColor: colors.blueAccent[800],
-            }
-          }}
-          startIcon={<DownloadOutlinedIcon />}
-          className="w-full md:w-auto"
-        >
-          Export Report
-        </Button>
+       <Button
+  sx={{
+    backgroundColor: "#4CAF50", // Medium green (better contrast)
+    color: "#FFFFFF", // Pure white
+    "&:hover": {
+      backgroundColor: "#388E3C", // Darker green
+    },
+    fontWeight: "bold" // Makes text more readable
+  }}
+  startIcon={<DownloadOutlinedIcon />}
+  className="w-full md:w-auto"
+>
+  Export Report
+</Button>
       </Box>
 
       {/* Grid Layout */}
