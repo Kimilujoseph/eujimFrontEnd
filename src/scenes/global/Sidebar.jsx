@@ -38,6 +38,7 @@ const roleBasedMenuItems = {
     { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
     { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
     { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
+    { text: "Admin Management", icon: <ContactsIcon />, to: "/admin" },
     { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],

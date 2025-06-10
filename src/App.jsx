@@ -4,7 +4,7 @@ import { ColorModeContext, useMode } from "./theme";
 import AuthLayout from "./layouts/authLayout";
 import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
-import Graduates from "./scenes/graduates/index";
+import UserManagementTable from "./scenes/userManagement/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import Dashboard from "./scenes/dashboard/index";
@@ -33,7 +33,9 @@ function App() {
                 <ProtectedRoute>
                   <MainLayout>
                     <Routes>
-                      <Route path="/graduates" element={<Graduates />} />
+                      <Route path="/graduates" element={<UserManagementTable role="jobseeker" title="JOB SEEKER MANAGEMENT" />} />
+                      <Route path="/employers" element={<UserManagementTable role="employer" title="EMPLOYER MANAGEMENT" />} />
+                      <Route path="/admin" element={<UserManagementTable role="admin" title="EMPLOYER MANAGEMENT" />} />
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/profile" element={<JobSeekerProfile />} />
                       <Route
