@@ -1,4 +1,5 @@
 // components/UserManagementTable.jsx
+import { useAuth } from "../../auth/authContext"
 import {
   IconButton,
   Dialog,
@@ -47,13 +48,18 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import api from "../../api/api";
 
+
+
+
 const UserManagementTable = ({ role, title, includeDeleted = true }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const navigate = useNavigate();
+  const { user } = useAuth()
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -96,6 +102,26 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
     fetchUsers();
     return () => fetchUsers.cancel();
   }, [role, includeDeleted]);
+
+  const handleViewProfile = (selectedUser) => {
+
+
+    if ((user?.role === 'admin' || user?.role === 'superAdmin')) {
+      if (role === "jobseeker") {
+        navigate(`/job-seeker-dashboard/${selectedUser.id}/${selectedUser.firstName}`);
+      }
+      // else if (userType === "employer") {
+      //   navigate(`/employer-dashboard/${user.id}/${user.companyName}`);
+      // }
+    } else {
+      setSnackbar({
+        open: true,
+        message: "You don't have permission to view this profile",
+        severity: "error"
+      });
+    }
+  };
+
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -295,7 +321,7 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => (
-        <div className="flex flex-wrap items-center gap-1 mt-1 overflow-visible">
+        <div className="flex flex-wrap items-center gap-1 mt-3 overflow-visible">
           <Chip
             icon={params.row.isVerified ? <VerifiedIcon /> : <PendingIcon />}
             label={params.row.isVerified ? "Verified" : "Pending"}
@@ -339,7 +365,9 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
             onClose={handleMenuClose}
           >
             <MenuItem
-              onClick={() => navigate(`/user/${params.row.id}/profile`)}
+              onClick={() => {
+                handleViewProfile(params.row)
+              }}
             >
               <div className="flex items-center">
                 <VisibilityIcon className="mr-2" /> View Profile
@@ -643,7 +671,7 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
               <div className="p-2">
                 <Button
                   startIcon={<SearchIcon />}
-                  onClick={() => fetchUsers()}
+                  //onClick={() => fetchUsers()}
                   sx={{ color: colors.grey[100] }}
                 >
                   Refresh

@@ -41,8 +41,8 @@ const Login = () => {
       setUser(res.data.user);
       if (res.data.user.role === "superAdmin") {
         navigate("/");
-      } else {
-        navigate("/dashboard");
+      } else if (res.data.user.role === "employer") {
+        navigate("/employer-dashboard");
       }
     } catch (err) {
       console.log(err);

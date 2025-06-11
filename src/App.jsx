@@ -7,6 +7,7 @@ import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
+import EmployerDashboard from "./scenes/employerDashboard";
 import Dashboard from "./scenes/dashboard/index";
 import ProtectedRoute from "./auth/protectedRoute";
 import { AuthProvider } from "./auth/authContext";
@@ -38,9 +39,14 @@ function App() {
                       <Route path="/admin" element={<UserManagementTable role="admin" title="EMPLOYER MANAGEMENT" />} />
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/profile" element={<JobSeekerProfile />} />
+                      <Route path="/employer-dashboard" element={<EmployerDashboard />} />
                       <Route
-                        path="/job-seeker-dashboard"
-                        element={<JobSeekerDashboard />}
+                        path="/job-seeker-dashboard/"
+                        element={<JobSeekerDashboard role='jobseeker' />}
+                      />
+                      <Route
+                        path="/job-seeker-dashboard/:userId?/:firstName?"
+                        element={<JobSeekerDashboard role='admin' />}
                       />
                       <Route
                         path="/user/:id/profile"

@@ -55,7 +55,12 @@ const roleBasedMenuItems = {
     { text: "Interview History", icon: <HistoryIcon />, to: "/interviews" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
-  // You can add more roles here as needed
+  employer: [
+    { text: "Dashboard", icon: <DashboardIcon />, to: "/employer-dashboard" },
+    { text: "Profile", icon: <PersonIcon />, to: "/profile" },
+    { text: "Recruitement History", icon: <HistoryIcon />, to: "/interviews" },
+    { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
+  ]
 };
 
 const drawerWidth = 240;

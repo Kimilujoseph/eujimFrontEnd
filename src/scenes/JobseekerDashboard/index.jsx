@@ -21,37 +21,40 @@ import BarChart from "../../components/BarChart";
 import DoughnutChart from "../../components/DoughnutChart";
 import api from "../../api/api";
 import { useEffect, useState } from "react";
-import { useAuth } from "../../auth/authContext";
+import { useParams } from "react-router-dom";
+//import { useAuth } from "../../auth/authContext";
 
-const JobSeekerDashboard = () => {
+
+const JobSeekerDashboard = ({ role = role }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { user } = useAuth(); // use 'user', not 'authState'
+  const { userId, firstName } = useParams();
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        console.log("Fetching analytics data..."); // Debug log
-        const response = await api.get("/graduate/profile/analytics");
-        console.log("Analytics response:", response); // Debug log
-        setAnalyticsData(response.data);
+        const endpoint = role == 'admin' ? `/graduate/profile/analytics/${userId}/` : "/graduate/profile/analytics/"
+
+        const response = await api.get(endpoint);
+        console.log("Analytics response:", response);
+        setAnalyticsData(response.data)
       } catch (err) {
         console.error("Error fetching analytics:", err); // Debug log
         setError(
-          err.response?.data?.message || 
-          err.message || 
+          err.response?.data?.message ||
+          err.message ||
           "Failed to fetch analytics data"
         );
       } finally {
         setLoading(false);
       }
-    };  
+    };
 
     fetchAnalyticsData();
-  }, [])
+  }, [role, userId])
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
@@ -110,23 +113,23 @@ const JobSeekerDashboard = () => {
       {/* Header Section */}
       <Box className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <Header
-          title="JOB SEEKER ANALYTICS DASHBOARD"
-          subtitle="Comprehensive Overview of Your Job Search Progress"
+          title={role == 'admin' ? `${firstName}'s Analytics Dashboard` : "JOB SEEKER ANALYTICS DASHBOARD"}
+          subtitle={role == 'admin' ? `Comprehensive Overview of ${firstName} Job Search Progress` : "Comprehensive Overview of Your Job Search Progress"}
         />
-       <Button
-  sx={{
-    backgroundColor: "#4CAF50", // Medium green (better contrast)
-    color: "#FFFFFF", // Pure white
-    "&:hover": {
-      backgroundColor: "#388E3C", // Darker green
-    },
-    fontWeight: "bold" // Makes text more readable
-  }}
-  startIcon={<DownloadOutlinedIcon />}
-  className="w-full md:w-auto"
->
-  Export Report
-</Button>
+        <Button
+          sx={{
+            backgroundColor: "#4CAF50", // Medium green (better contrast)
+            color: "#FFFFFF", // Pure white
+            "&:hover": {
+              backgroundColor: "#388E3C", // Darker green
+            },
+            fontWeight: "bold" // Makes text more readable
+          }}
+          startIcon={<DownloadOutlinedIcon />}
+          className="w-full md:w-auto"
+        >
+          Export Report
+        </Button>
       </Box>
 
       {/* Grid Layout */}
@@ -222,8 +225,8 @@ const JobSeekerDashboard = () => {
                       interaction.status === "interviewed"
                         ? colors.greenAccent[500]
                         : interaction.status === "shortlisted"
-                        ? colors.blueAccent[500]
-                        : colors.grey[500],
+                          ? colors.blueAccent[500]
+                          : colors.grey[500],
                     color: colors.grey[100],
                   }}
                 />
@@ -234,29 +237,29 @@ const JobSeekerDashboard = () => {
 
         {/* Skill Distribution */}
         <div className={`md:col-span-3 rounded-lg p-4 shadow-md ${theme.palette.mode === "dark" ? "bg-gray-800" : "bg-white"}`}>
-  <Typography 
-    variant="h6" 
-    className="mb-3 font-semibold text-lg md:text-xl"
-  >
-    Skill Distribution
-  </Typography>
-  <div className="h-64 sm:h-72 md:h-80 lg:h-96">
-    <DoughnutChart
-      data={[
-        { id: "Beginner", value: skill_distribution.begginner },
-        { id: "Intermediate", value: skill_distribution.intermediate },
-        { id: "Mid Level", value: skill_distribution.midlevel },
-        { id: "Professional", value: skill_distribution.proffessional },
-      ]}
-      colors={[
-        colors.redAccent[500],
-        colors.blueAccent[500],
-        colors.greenAccent[500],
-        colors.greenAccent[700],
-      ]}
-    />
-  </div>
-</div>
+          <Typography
+            variant="h6"
+            className="mb-3 font-semibold text-lg md:text-xl"
+          >
+            Skill Distribution
+          </Typography>
+          <div className="h-64 sm:h-72 md:h-80 lg:h-96">
+            <DoughnutChart
+              data={[
+                { id: "Beginner", value: skill_distribution.begginner },
+                { id: "Intermediate", value: skill_distribution.intermediate },
+                { id: "Mid Level", value: skill_distribution.midlevel },
+                { id: "Professional", value: skill_distribution.proffessional },
+              ]}
+              colors={[
+                colors.redAccent[500],
+                colors.blueAccent[500],
+                colors.greenAccent[500],
+                colors.greenAccent[700],
+              ]}
+            />
+          </div>
+        </div>
 
         {/* Education Distribution */}
         <div className={`md:col-span-3 rounded-lg p-4 shadow-md ${theme.palette.mode === "dark" ? "bg-gray-800" : "bg-white"}`}>
@@ -286,7 +289,7 @@ const JobSeekerDashboard = () => {
             Skills Growth Timeline
           </Typography>
           <div className="max-h-96 overflow-y-auto">
-            <Timeline 
+            <Timeline
               position={window.innerWidth > 768 ? "alternate" : "right"}
               sx={{
                 "& .MuiTimelineItem-root:before": {
@@ -300,14 +303,14 @@ const JobSeekerDashboard = () => {
                   <TimelineSeparator>
                     <TimelineDot sx={{ backgroundColor: getSkillLevelColor(skill.proficiency_level) }} />
                     {index < skills_growth_timeline.length - 1 && (
-                      <TimelineConnector sx={{ 
-                        backgroundColor: theme.palette.mode === 'dark' ? colors.grey[700] : colors.grey[300] 
+                      <TimelineConnector sx={{
+                        backgroundColor: theme.palette.mode === 'dark' ? colors.grey[700] : colors.grey[300]
                       }} />
                     )}
                   </TimelineSeparator>
                   <TimelineContent>
-                    <Box 
-                      sx={{ 
+                    <Box
+                      sx={{
                         backgroundColor: theme.palette.mode === 'dark' ? colors.grey[700] : colors.grey[100],
                         borderRadius: '8px',
                         padding: '8px 12px'
