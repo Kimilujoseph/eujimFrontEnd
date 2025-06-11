@@ -1,14 +1,18 @@
 import {
-    useTheme,
     Card,
-    Snackbar,
-    Alert,
     CardHeader,
     CardContent,
     List,
+    ListItem,
+    ListItemText,
+    Button,
     LinearProgress,
+    IconButton,
+    useTheme,
     Typography,
-    Box
+    Box,
+    Snackbar,
+    Alert
 } from "@mui/material";
 import { tokens } from "../../theme";
 import { useState, useEffect, useCallback } from "react";
@@ -28,12 +32,12 @@ export const DocumentsManager = ({ recruiterId }) => {
         message: "",
         severity: "info"
     });
-    const { user } = useAuth()
+    const { user } = useAuth();
 
     const fetchDocuments = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get(`/recruiter/documents/upload/${user?.id}`);
+            const response = await api.get(`/recruiter/documents/upload/${user?.id || recruiterId}`);
             setDocuments(response.data);
         } catch (err) {
             setSnackbar({
@@ -44,7 +48,7 @@ export const DocumentsManager = ({ recruiterId }) => {
         } finally {
             setLoading(false);
         }
-    }, [user?.id]);
+    }, [user?.id, recruiterId]);
 
     const handleUpload = async (files) => {
         setUploading(true);
@@ -52,7 +56,8 @@ export const DocumentsManager = ({ recruiterId }) => {
             for (const file of files) {
                 const formData = new FormData();
                 formData.append("upload_path", file);
-                formData.append("doc_type", file.type);
+                // You can set a default doc_type or extract from file name
+                formData.append("doc_type", "registration certificate"); // or make this dynamic
 
                 await api.post("/recruiter/documents/upload/", formData, {
                     headers: { "Content-Type": "multipart/form-data" }
@@ -77,7 +82,7 @@ export const DocumentsManager = ({ recruiterId }) => {
 
     const handleDelete = async (docId) => {
         try {
-            await api.delete(`/recruiter/documents/${docId}`);
+            await api.delete(`/recruiter/documents/upload/${docId}/`);
             setSnackbar({
                 open: true,
                 message: "Document deleted successfully",
@@ -95,7 +100,14 @@ export const DocumentsManager = ({ recruiterId }) => {
 
     useEffect(() => {
         fetchDocuments();
-    }, [recruiterId, fetchDocuments]);
+    }, [fetchDocuments]);
+
+    // Extract file name from upload_path
+    const getFileName = (url) => {
+        if (!url) return "Unknown";
+        const parts = url.split('/');
+        return parts[parts.length - 1];
+    };
 
     return (
         <Card sx={{
@@ -173,7 +185,7 @@ export const DocumentsManager = ({ recruiterId }) => {
                             ) : (
                                 documents.map((doc) => (
                                     <ListItem
-                                        key={doc.id}
+                                        key={doc.id || doc.upload_path} // Use upload_path as fallback key
                                         sx={{
                                             backgroundColor: colors.primary[500],
                                             mb: 1,
@@ -187,7 +199,7 @@ export const DocumentsManager = ({ recruiterId }) => {
                                                 <IconButton
                                                     edge="end"
                                                     aria-label="download"
-                                                    href={`/api/v1/recruiter/documents/${doc.id}/download`}
+                                                    href={`recruiter/documents/${doc.id}/download/`}
                                                     target="_blank"
                                                     sx={{ color: colors.greenAccent[500] }}
                                                 >
@@ -211,7 +223,7 @@ export const DocumentsManager = ({ recruiterId }) => {
                                                     color={colors.grey[100]}
                                                     sx={{ wordBreak: "break-word" }}
                                                 >
-                                                    {doc.name}
+                                                    {getFileName(doc.upload_path)}
                                                 </Typography>
                                             }
                                             secondary={
@@ -219,7 +231,7 @@ export const DocumentsManager = ({ recruiterId }) => {
                                                     variant="body2"
                                                     color={colors.grey[400]}
                                                 >
-                                                    {new Date(doc.uploadedAt).toLocaleDateString()} • {doc.type}
+                                                    {doc.createdAt && new Date(doc.createdAt).toLocaleDateString()} • {doc.doc_type} • {doc.status}
                                                 </Typography>
                                             }
                                         />
