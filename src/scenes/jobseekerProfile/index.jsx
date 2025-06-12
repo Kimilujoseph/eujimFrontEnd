@@ -259,18 +259,46 @@ const JobSeekerProfile = () => {
             sx={{
               mb: 3,
               "& .MuiTab-root": {
-                color: colors.grey[400],
+                color: colors.grey[400], // secondary color for unselected tabs
                 "&.Mui-selected": {
-                  color: colors.greenAccent[400],
+                  color: colors.greenAccent[400], // color for selected tab
                 },
+              },
+              "& .MuiTabs-indicator": {
+                backgroundColor: colors.greenAccent[400],
               },
             }}
           >
-            <Tab label="Overview" />
-            <Tab label="Skills" />
-            <Tab label="Education" />
-            <Tab label="Certifications" />
-            <Tab label="Interviews" />
+            <Tab
+              label="Overview"
+              sx={{
+                color: theme.palette.mode === "dark" ? "#1a237e" : colors.grey[400],
+              }}
+            />
+            <Tab
+              label="Skills"
+              sx={{
+                color: theme.palette.mode === "dark" ? "#1a237e" : colors.grey[400],
+              }}
+            />
+            <Tab
+              label="Education"
+              sx={{
+                color: theme.palette.mode === "dark" ? "#1a237e" : colors.grey[400],
+              }}
+            />
+            <Tab
+              label="Certifications"
+              sx={{
+                color: theme.palette.mode === "dark" ? "#1a237e" : colors.grey[400],
+              }}
+            />
+            <Tab
+              label="Interviews"
+              sx={{
+                color: theme.palette.mode === "dark" ? "#1a237e" : colors.grey[400],
+              }}
+            />
           </Tabs>
 
           <Box
