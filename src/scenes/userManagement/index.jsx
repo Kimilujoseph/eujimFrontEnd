@@ -1,3 +1,5 @@
+// components/UserManagementTable.jsx
+import { useAuth } from "../../auth/authContext"
 import {
   IconButton,
   Dialog,
@@ -46,20 +48,24 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import api from "../../api/api";
 
-const Graduates = () => {
+
+
+
+const UserManagementTable = ({ role, title, includeDeleted = true }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const navigate = useNavigate();
+  const { user } = useAuth()
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [firstName, setFirstName] = useState("");
-  const [secondName, setSecondName] = useState("");
+  const [lastName, setSecondName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("jobseeker");
   const [showPassword, setShowPassword] = useState(false);
   const [createErrors, setCreateErrors] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
@@ -78,22 +84,44 @@ const Graduates = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
-  const fetchUsers = debounce(async () => {
-    try {
-      setLoading(true);
-      const response = await api.get("/manage/admin/users/all");
-      setUsers(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  }, 300);
-
   useEffect(() => {
+    const fetchUsers = debounce(async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(
+          `/manage/admin/users/all?role=${role}&include_deleted=${includeDeleted}`
+        );
+        setUsers(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    }, 300);
+
     fetchUsers();
     return () => fetchUsers.cancel();
-  }, []);
+  }, [role, includeDeleted]);
+
+  const handleViewProfile = (selectedUser) => {
+
+
+    if ((user?.role === 'admin' || user?.role === 'superAdmin')) {
+      if (role === "jobseeker") {
+        navigate(`/job-seeker-dashboard/${selectedUser.id}/${selectedUser.firstName}`);
+      }
+      // else if (userType === "employer") {
+      //   navigate(`/employer-dashboard/${user.id}/${user.companyName}`);
+      // }
+    } else {
+      setSnackbar({
+        open: true,
+        message: "You don't have permission to view this profile",
+        severity: "error"
+      });
+    }
+  };
+
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -102,7 +130,7 @@ const Graduates = () => {
     try {
       await api.post("/auth/register", {
         firstName,
-        secondName,
+        lastName,
         role,
         email,
         password,
@@ -114,15 +142,35 @@ const Graduates = () => {
         severity: "success",
       });
       setOpenCreateModal(false);
-      fetchUsers();
+      // fetchUsers();
       setFirstName("");
       setSecondName("");
       setEmail("");
       setPassword("");
-      setRole("jobseeker");
     } catch (err) {
       if (err.response?.status === 400) {
-        setCreateErrors(err.response.data);
+        // Handle validation errors
+        const backendErrors = err.response.data?.errors || {};
+        const formattedErrors = {};
+        if (backendErrors.email) {
+          formattedErrors.email = backendErrors.email.join(', ');
+        }
+        if (backendErrors.password) {
+          formattedErrors.password = backendErrors.password.join(', ');
+        }
+        if (backendErrors.firstName) {
+          formattedErrors.firstName = backendErrors.firstName.join(', ');
+        }
+        if (backendErrors.lastName) {
+          formattedErrors.lastName = backendErrors.secondName.join(', ');
+        }
+
+        // Handle non-field specific errors
+        if (err.response.data?.message && !Object.keys(formattedErrors).length) {
+          formattedErrors.non_field_errors = err.response.data.message;
+        }
+
+        setCreateErrors(formattedErrors);
       } else if (err.response?.data?.error === "Token expired") {
         setSnackbar({
           open: true,
@@ -132,12 +180,13 @@ const Graduates = () => {
       } else {
         setSnackbar({
           open: true,
-          message: "Error creating user",
+          message: err.response?.data?.message || "Error creating user",
           severity: "error",
         });
       }
     }
   };
+
 
   const handleStatusUpdate = async () => {
     try {
@@ -169,8 +218,6 @@ const Graduates = () => {
         message: getSuccessMessage(),
         severity: "success",
       });
-
-      fetchUsers();
     } catch (err) {
       setSnackbar({
         open: true,
@@ -185,17 +232,15 @@ const Graduates = () => {
   const getSuccessMessage = () => {
     switch (actionType) {
       case "verify":
-        return `User ${
-          selectedUser.isVerified ? "unverified" : "verified"
-        } successfully`;
+        return `User ${selectedUser.isVerified ? "unverified" : "verified"
+          } successfully`;
       case "delete":
         return "User deleted successfully";
       case "restore":
         return "User restored successfully";
       case "suspend":
-        return `User ${
-          selectedUser.is_suspended ? "unsuspended" : "suspended"
-        } successfully`;
+        return `User ${selectedUser.is_suspended ? "unsuspended" : "suspended"
+          } successfully`;
       default:
         return "Action completed successfully";
     }
@@ -250,10 +295,10 @@ const Graduates = () => {
             sx={{ bgcolor: colors.greenAccent[500] }}
           >
             {params.row.firstName?.charAt(0)}
-            {params.row.secondName?.charAt(0)}
+            {params.row.lastName?.charAt(0)}
           </Avatar>
           <span>
-            {params.row.firstName} {params.row.secondName}
+            {params.row.firstName} {params.row.lastName}
             {params.row.is_deleted && " (Deleted)"}
           </span>
         </div>
@@ -276,7 +321,7 @@ const Graduates = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => (
-        <div className="flex flex-wrap items-center gap-1 mt-1 overflow-visible">
+        <div className="flex flex-wrap items-center gap-1 mt-3 overflow-visible">
           <Chip
             icon={params.row.isVerified ? <VerifiedIcon /> : <PendingIcon />}
             label={params.row.isVerified ? "Verified" : "Pending"}
@@ -320,7 +365,9 @@ const Graduates = () => {
             onClose={handleMenuClose}
           >
             <MenuItem
-              onClick={() => navigate(`/user/${params.row.id}/profile`)}
+              onClick={() => {
+                handleViewProfile(params.row)
+              }}
             >
               <div className="flex items-center">
                 <VisibilityIcon className="mr-2" /> View Profile
@@ -399,7 +446,7 @@ const Graduates = () => {
     const searchLower = searchTerm.toLowerCase();
     return (
       user.firstName.toLowerCase().includes(searchLower) ||
-      user.secondName.toLowerCase().includes(searchLower) ||
+      user.lastName.toLowerCase().includes(searchLower) ||
       user.email.toLowerCase().includes(searchLower) ||
       (user.role && user.role.toLowerCase().includes(searchLower))
     );
@@ -408,7 +455,7 @@ const Graduates = () => {
   return (
     <div className="m-5">
       <Header
-        title="USER MANAGEMENT"
+        title={title || `${role.toUpperCase()} MANAGEMENT`}
         subtitle={
           <div className="flex flex-col w-full gap-2 sm:flex-row sm:items-center">
             <Button
@@ -518,10 +565,10 @@ const Graduates = () => {
                 variant="filled"
                 label="Second Name"
                 required
-                value={secondName}
+                value={lastName}
                 onChange={(e) => setSecondName(e.target.value)}
-                error={!!createErrors.secondName}
-                helperText={createErrors.secondName}
+                error={!!createErrors.lastName}
+                helperText={createErrors.lastName}
                 InputLabelProps={{ style: { color: colors.grey[300] } }}
                 sx={{
                   input: { color: colors.grey[100] },
@@ -557,26 +604,6 @@ const Graduates = () => {
                 }}
                 className="mt-4"
               />
-
-              <FormControl fullWidth margin="normal" variant="filled" className="mt-4">
-                <InputLabel style={{ color: colors.grey[300] }}>
-                  Role
-                </InputLabel>
-                <Select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  input={<OutlinedInput label="Role" />}
-                  sx={{
-                    color: colors.grey[100],
-                    background: colors.primary[500],
-                    "& .MuiSelect-icon": { color: colors.grey[100] },
-                  }}
-                >
-                  <MenuItem value="jobseeker">Job Seeker</MenuItem>
-                  <MenuItem value="employer">Employer</MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
-                </Select>
-              </FormControl>
 
               <TextField
                 fullWidth
@@ -644,7 +671,7 @@ const Graduates = () => {
               <div className="p-2">
                 <Button
                   startIcon={<SearchIcon />}
-                  onClick={() => fetchUsers()}
+                  //onClick={() => fetchUsers()}
                   sx={{ color: colors.grey[100] }}
                 >
                   Refresh
@@ -673,4 +700,4 @@ const Graduates = () => {
   );
 };
 
-export default Graduates;
+export default UserManagementTable;
