@@ -14,6 +14,11 @@ import {
   Tooltip,
   useTheme,
 } from "@mui/material";
+import {
+  Business as BusinessIcon,
+  Search as SearchIcon,
+  Group as GroupIcon
+} from '@mui/icons-material';
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import ReceiptIcon from "@mui/icons-material/Receipt";
@@ -58,6 +63,9 @@ const roleBasedMenuItems = {
   employer: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/employer-dashboard" },
     { text: "Profile", icon: <PersonIcon />, to: "/profile" },
+    { text: "Find Candidates", icon: <SearchIcon />, to: "/search/skill" },
+    { text: "Recruitment Pipeline", icon: <GroupIcon />, to: "/employer/pipeline" },
+    { text: "Company Profile", icon: <BusinessIcon />, to: "/employer/profile" },
     { text: "Recruitement History", icon: <HistoryIcon />, to: "/interviews" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ]

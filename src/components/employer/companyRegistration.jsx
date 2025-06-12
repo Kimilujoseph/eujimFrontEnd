@@ -22,7 +22,6 @@ export const CompanyRegistration = ({ onComplete }) => {
   const colors = tokens(theme.palette.mode);
   const { user } = useAuth();
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     companyName: '',
     industry: '',
