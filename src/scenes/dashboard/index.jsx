@@ -29,20 +29,19 @@ const Dashboard = () => {
     }
   };
 
-  return (
-    <Box m="20px">
-      {/* Header Section */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+ return (
+    <div className="m-2 sm:m-5">
+      {/* Header Section (unchanged) */}
+     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <Header
           title="GRADUATE RECRUITMENT DASHBOARD"
           subtitle="Tracking Employer Selection Process & Candidate Skills"
         />
-        <Box>
+        <div className="flex gap-2">
           <Button
             sx={{
               backgroundColor: colors.blueAccent[700],
               color: colors.grey[100],
-              mr: 2,
             }}
             onClick={() => handleExport("csv")}
           >
@@ -59,23 +58,20 @@ const Dashboard = () => {
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Export PDF
           </Button>
-        </Box>
-      </Box>
+        </div>
+      </div>
 
-      {/* Grid Layout */}
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="140px"
-        gap="20px"
-      >
-        {/* Row 1 - Key Metrics */}
-        <Box gridColumn="span 3" bgcolor={colors.primary[400]} p="15px">
+      {/* Grid Layout - FIXED SECTION */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 mt-5 auto-rows-[minmax(140px,auto)]">
+        {/* StatBoxes as direct grid children */}
+        <div
+          className="md:col-span-3 bg-opacity-80 p-4 rounded"
+          style={{ background: colors.primary[400] }}
+        >
           <StatBox
             title={mockData.totalJobSeekers.toLocaleString()}
             subtitle="Registered Graduates"
             progress={0.75}
-            ye
             increase="+12%"
             icon={
               <PeopleAltIcon
@@ -83,8 +79,12 @@ const Dashboard = () => {
               />
             }
           />
-        </Box>
-        <Box gridColumn="span 3" bgcolor={colors.primary[400]} p="15px">
+        </div>
+
+        <div
+          className="md:col-span-3 bg-opacity-80 p-4 rounded"
+          style={{ background: colors.primary[400] }}
+        >
           <StatBox
             title={mockData.activeEmployers.toLocaleString()}
             subtitle="Active Employers"
@@ -96,8 +96,12 @@ const Dashboard = () => {
               />
             }
           />
-        </Box>
-        <Box gridColumn="span 3" bgcolor={colors.primary[400]} p="15px">
+        </div>
+
+        <div
+          className="md:col-span-3 bg-opacity-80 p-4 rounded"
+          style={{ background: colors.primary[400] }}
+        >
           <StatBox
             title={mockData.totalInterviews.toLocaleString()}
             subtitle="Total Interviews"
@@ -109,8 +113,12 @@ const Dashboard = () => {
               />
             }
           />
-        </Box>
-        <Box gridColumn="span 3" bgcolor={colors.primary[400]} p="15px">
+        </div>
+
+        <div
+          className="md:col-span-3 bg-opacity-80 p-4 rounded"
+          style={{ background: colors.primary[400] }}
+        >
           <StatBox
             title={`${mockData.profileCompleteness}%`}
             subtitle="Profile Completeness"
@@ -122,37 +130,26 @@ const Dashboard = () => {
               />
             }
           />
-        </Box>
+        </div>
 
-        {/* Row 2 - Hiring Process Visualizations */}
-        <Box
-          gridColumn="span 8"
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-          p="20px"
+        {/* Hiring Process Visualizations */}
+        <div
+          className="md:col-span-8 md:row-span-2 bg-opacity-80 p-5 rounded flex flex-col"
+          style={{ background: colors.primary[400] }}
         >
-          <Typography variant="h5" fontWeight="600" mb="15px">
+          <Typography variant="h5" fontWeight="600" className="mb-4">
             Recruitment Funnel Analysis
           </Typography>
-          <Box
-            display="flex"
-            justifyContent="space-around"
-            alignItems="center"
-            height="80%"
-          >
+          <div className="flex flex-wrap justify-center gap-6 flex-1 items-center">
             <ProgressCircle
               size={120}
-              progress={
-                mockData.hiringFunnel.shortlisted / mockData.totalJobSeekers
-              }
+              progress={mockData.hiringFunnel.shortlisted / mockData.totalJobSeekers}
               label="Shortlisted"
               value={mockData.hiringFunnel.shortlisted}
             />
             <ProgressCircle
               size={120}
-              progress={
-                mockData.hiringFunnel.interviewed / mockData.totalJobSeekers
-              }
+              progress={mockData.hiringFunnel.interviewed / mockData.totalJobSeekers}
               label="Interviewed"
               value={mockData.hiringFunnel.interviewed}
             />
@@ -164,58 +161,57 @@ const Dashboard = () => {
             />
             <ProgressCircle
               size={120}
-              progress={
-                mockData.hiringFunnel.rejected / mockData.totalJobSeekers
-              }
+              progress={mockData.hiringFunnel.rejected / mockData.totalJobSeekers}
               label="Rejected"
               value={mockData.hiringFunnel.rejected}
             />
-          </Box>
-        </Box>
+          </div>
+        </div>
 
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-          p="20px"
-          overflow="auto"
+        {/* Recent Activities */}
+        <div
+          className="md:col-span-4 md:row-span-2 bg-opacity-80 p-5 rounded flex flex-col"
+          style={{ background: colors.primary[400] }}
         >
-          <Typography variant="h5" fontWeight="600" mb="15px">
+          <Typography variant="h5" fontWeight="600" className="mb-4">
             Recent Selection Activities
           </Typography>
-          {mockData.recentActivities.map((activity, i) => (
-            <Box
-              key={i}
-              display="flex"
-              justifyContent="space-between"
-              p="10px"
-              borderBottom={`1px solid ${colors.primary[500]}`}
-            >
-              <Box>
-                <Typography color={colors.greenAccent[500]} fontWeight="600">
-                  {activity.company}
-                </Typography>
-                <Typography variant="body2">
-                  {activity.action} {activity.candidate}
-                </Typography>
-              </Box>
-              <Typography variant="body2">{activity.date}</Typography>
-            </Box>
-          ))}
-        </Box>
+          <div className="flex-1 overflow-auto">
+            {mockData.recentActivities.map((activity, i) => (
+              <div
+                key={i}
+                className="flex justify-between p-2 border-b"
+                style={{ borderColor: colors.primary[500] }}
+              >
+                <div>
+                  <Typography
+                    style={{
+                      color: colors.greenAccent[500],
+                      fontWeight: 600,
+                    }}
+                  >
+                    {activity.company}
+                  </Typography>
+                  <Typography variant="body2">
+                    {activity.action} {activity.candidate}
+                  </Typography>
+                </div>
+                <Typography variant="body2">{activity.date}</Typography>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        {/* Row 3 - Skills & Certifications */}
-        <Box
-          gridColumn="span 8"
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-          p="20px"
+        {/* Top Graduate Certifications */}
+        <div
+          className="md:col-span-8 bg-opacity-80 p-5 rounded"
+          style={{ background: colors.primary[400] }}
         >
-          <Typography variant="h5" fontWeight="600" mb="15px">
+          <Typography variant="h5" fontWeight="600" className="mb-4">
             Top Graduate Certifications
           </Typography>
-          <Box height="300px">
-            <BarChart
+          <div className="flex-1 min-h-[300px] w-full overflow-hidden touch-pan-y">
+   <BarChart
               data={mockData.topCertifications.map((cert) => ({
                 certification: cert.certification,
                 holders: cert.count,
@@ -224,46 +220,47 @@ const Dashboard = () => {
               indexBy="certification"
               isInteractive={true}
             />
-          </Box>
-        </Box>
+</div>
+         
+        </div>
 
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          bgcolor={colors.primary[400]}
-          p="20px"
+        {/* System Alerts */}
+        <div
+          className="md:col-span-4 bg-opacity-80 p-5 rounded flex flex-col"
+          style={{ background: colors.primary[400] }}
         >
-          <Typography variant="h5" fontWeight="600" mb="15px">
+          <Typography variant="h5" fontWeight="600" className="mb-4">
             System Alerts
           </Typography>
-          <Box
-            p="15px"
-            bgcolor={colors.redAccent[700]}
-            mb="10px"
-            borderRadius="4px"
-          >
-            <Typography fontWeight="600">
-              {mockData.alerts.pendingVerifications} Pending Verifications
-            </Typography>
-          </Box>
-          <Box
-            p="15px"
-            bgcolor={colors.yellowAccent[700]}
-            mb="10px"
-            borderRadius="4px"
-          >
-            <Typography fontWeight="600">
-              {mockData.alerts.incompleteProfiles} Incomplete Profiles
-            </Typography>
-          </Box>
-          <Box p="15px" bgcolor={colors.redAccent[700]} borderRadius="4px">
-            <Typography fontWeight="600">
-              {mockData.alerts.suspendedAccounts} Suspended Accounts
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          <div className="flex flex-col gap-3 flex-1">
+            <div
+              className="p-4 rounded flex-1"
+              style={{ background: colors.redAccent[700] }}
+            >
+              <Typography fontWeight="600">
+                {mockData.alerts.pendingVerifications} Pending Verifications
+              </Typography>
+            </div>
+            <div
+              className="p-4 rounded flex-1"
+              style={{ background: colors.yellowAccent[700] }}
+            >
+              <Typography fontWeight="600">
+                {mockData.alerts.incompleteProfiles} Incomplete Profiles
+              </Typography>
+            </div>
+            <div
+              className="p-4 rounded flex-1"
+              style={{ background: colors.redAccent[700] }}
+            >
+              <Typography fontWeight="600">
+                {mockData.alerts.suspendedAccounts} Suspended Accounts
+              </Typography>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

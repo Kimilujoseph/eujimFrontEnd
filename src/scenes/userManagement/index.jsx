@@ -1,5 +1,6 @@
+// components/UserManagementTable.jsx
+import { useAuth } from "../../auth/authContext"
 import {
-  Box,
   IconButton,
   Dialog,
   DialogTitle,
@@ -47,63 +48,80 @@ import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import api from "../../api/api";
 
-const Graduates = () => {
+
+
+
+const UserManagementTable = ({ role, title, includeDeleted = true }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const navigate = useNavigate();
+  const { user } = useAuth()
 
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [firstName, setFirstName] = useState("");
-  const [secondName, setSecondName] = useState("");
+  const [lastName, setSecondName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("jobseeker");
   const [showPassword, setShowPassword] = useState(false);
   const [createErrors, setCreateErrors] = useState({});
-  // Dialog states
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [actionType, setActionType] = useState("");
-
-  // Notification states
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
-
-  // Pagination states
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
-
-  // Search state
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Action menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
 
-  const fetchUsers = debounce(async () => {
-    try {
-      setLoading(true);
-      const response = await api.get("/manage/admin/users/all");
-      setUsers(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  }, 300);
-
   useEffect(() => {
+    const fetchUsers = debounce(async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(
+          `/manage/admin/users/all?role=${role}&include_deleted=${includeDeleted}`
+        );
+        setUsers(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    }, 300);
+
     fetchUsers();
     return () => fetchUsers.cancel();
-  }, []);
+  }, [role, includeDeleted]);
+
+  const handleViewProfile = (selectedUser) => {
+
+
+    if ((user?.role === 'admin' || user?.role === 'superAdmin')) {
+      if (role === "jobseeker") {
+        navigate(`/job-seeker-dashboard/${selectedUser.id}/${selectedUser.firstName}`);
+      }
+      // else if (userType === "employer") {
+      //   navigate(`/employer-dashboard/${user.id}/${user.companyName}`);
+      // }
+    } else {
+      setSnackbar({
+        open: true,
+        message: "You don't have permission to view this profile",
+        severity: "error"
+      });
+    }
+  };
+
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -112,7 +130,7 @@ const Graduates = () => {
     try {
       await api.post("/auth/register", {
         firstName,
-        secondName,
+        lastName,
         role,
         email,
         password,
@@ -124,32 +142,51 @@ const Graduates = () => {
         severity: "success",
       });
       setOpenCreateModal(false);
-      fetchUsers();
-      // Reset form
+      // fetchUsers();
       setFirstName("");
       setSecondName("");
       setEmail("");
       setPassword("");
-      setRole("jobseeker");
     } catch (err) {
       if (err.response?.status === 400) {
-        setCreateErrors(err.response.data);
+        // Handle validation errors
+        const backendErrors = err.response.data?.errors || {};
+        const formattedErrors = {};
+        if (backendErrors.email) {
+          formattedErrors.email = backendErrors.email.join(', ');
+        }
+        if (backendErrors.password) {
+          formattedErrors.password = backendErrors.password.join(', ');
+        }
+        if (backendErrors.firstName) {
+          formattedErrors.firstName = backendErrors.firstName.join(', ');
+        }
+        if (backendErrors.lastName) {
+          formattedErrors.lastName = backendErrors.secondName.join(', ');
+        }
+
+        // Handle non-field specific errors
+        if (err.response.data?.message && !Object.keys(formattedErrors).length) {
+          formattedErrors.non_field_errors = err.response.data.message;
+        }
+
+        setCreateErrors(formattedErrors);
       } else if (err.response?.data?.error === "Token expired") {
         setSnackbar({
           open: true,
           message: "Session expired. Please login again.",
           severity: "error",
         });
-        // Handle logout logic here if needed
       } else {
         setSnackbar({
           open: true,
-          message: "Error creating user",
+          message: err.response?.data?.message || "Error creating user",
           severity: "error",
         });
       }
     }
   };
+
 
   const handleStatusUpdate = async () => {
     try {
@@ -181,8 +218,6 @@ const Graduates = () => {
         message: getSuccessMessage(),
         severity: "success",
       });
-
-      fetchUsers();
     } catch (err) {
       setSnackbar({
         open: true,
@@ -197,17 +232,15 @@ const Graduates = () => {
   const getSuccessMessage = () => {
     switch (actionType) {
       case "verify":
-        return `User ${
-          selectedUser.isVerified ? "unverified" : "verified"
-        } successfully`;
+        return `User ${selectedUser.isVerified ? "unverified" : "verified"
+          } successfully`;
       case "delete":
         return "User deleted successfully";
       case "restore":
         return "User restored successfully";
       case "suspend":
-        return `User ${
-          selectedUser.is_suspended ? "unsuspended" : "suspended"
-        } successfully`;
+        return `User ${selectedUser.is_suspended ? "unsuspended" : "suspended"
+          } successfully`;
       default:
         return "Action completed successfully";
     }
@@ -256,23 +289,19 @@ const Graduates = () => {
       headerName: "Name",
       flex: 1,
       renderCell: (params) => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <div className="flex items-center gap-2">
           <Avatar
-            sx={{
-              bgcolor: colors.greenAccent[500],
-              width: 32,
-              height: 32,
-              fontSize: "0.875rem",
-            }}
+            className="w-8 h-8 text-sm"
+            sx={{ bgcolor: colors.greenAccent[500] }}
           >
             {params.row.firstName?.charAt(0)}
-            {params.row.secondName?.charAt(0)}
+            {params.row.lastName?.charAt(0)}
           </Avatar>
           <span>
-            {params.row.firstName} {params.row.secondName}
+            {params.row.firstName} {params.row.lastName}
             {params.row.is_deleted && " (Deleted)"}
           </span>
-        </Box>
+        </div>
       ),
     },
     { field: "email", headerName: "Email", flex: 1.5 },
@@ -281,10 +310,10 @@ const Graduates = () => {
       headerName: "Role",
       flex: 0.8,
       renderCell: (params) => (
-        <Box display="flex" alignItems="center" gap={1}>
+        <div className="flex items-center gap-1">
           {getRoleIcon(params.row.role)}
           {params.row.role || "N/A"}
-        </Box>
+        </div>
       ),
     },
     {
@@ -292,14 +321,7 @@ const Graduates = () => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => (
-        <Box
-          display="flex"
-          gap={1}
-          alignItems="center"
-          flexWrap="nowrap"
-          mt={1.7}
-          sx={{ overflow: "visible" }}
-        >
+        <div className="flex flex-wrap items-center gap-1 mt-3 overflow-visible">
           <Chip
             icon={params.row.isVerified ? <VerifiedIcon /> : <PendingIcon />}
             label={params.row.isVerified ? "Verified" : "Pending"}
@@ -322,7 +344,7 @@ const Graduates = () => {
               size="small"
             />
           )}
-        </Box>
+        </div>
       ),
     },
     {
@@ -330,7 +352,7 @@ const Graduates = () => {
       headerName: "Actions",
       flex: 1,
       renderCell: (params) => (
-        <Box>
+        <div>
           <IconButton
             onClick={(e) => handleMenuClick(e, params.row)}
             sx={{ color: colors.grey[100] }}
@@ -343,11 +365,13 @@ const Graduates = () => {
             onClose={handleMenuClose}
           >
             <MenuItem
-              onClick={() => navigate(`/user/${params.row.id}/profile`)}
+              onClick={() => {
+                handleViewProfile(params.row)
+              }}
             >
-              <Box display="flex" alignItems="center">
-                <VisibilityIcon sx={{ mr: 1 }} /> View Profile
-              </Box>
+              <div className="flex items-center">
+                <VisibilityIcon className="mr-2" /> View Profile
+              </div>
             </MenuItem>
 
             {!params.row.is_deleted && [
@@ -359,14 +383,14 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
+                <div className="flex items-center">
                   {params.row.is_suspended ? (
-                    <VerifiedIcon sx={{ mr: 1 }} />
+                    <VerifiedIcon className="mr-2" />
                   ) : (
-                    <SuspendedIcon sx={{ mr: 1 }} />
+                    <SuspendedIcon className="mr-2" />
                   )}
                   {params.row.is_suspended ? "Unsuspend" : "Suspend"}
-                </Box>
+                </div>
               </MenuItem>,
               <MenuItem
                 key="verify"
@@ -376,14 +400,14 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
+                <div className="flex items-center">
                   {params.row.isVerified ? (
-                    <PendingIcon sx={{ mr: 1 }} />
+                    <PendingIcon className="mr-2" />
                   ) : (
-                    <VerifiedIcon sx={{ mr: 1 }} />
+                    <VerifiedIcon className="mr-2" />
                   )}
                   {params.row.isVerified ? "Unverify" : "Verify"}
-                </Box>
+                </div>
               </MenuItem>,
               <MenuItem
                 key="delete"
@@ -393,9 +417,9 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
-                  <DeleteIcon sx={{ mr: 1 }} /> Delete
-                </Box>
+                <div className="flex items-center">
+                  <DeleteIcon className="mr-2" /> Delete
+                </div>
               </MenuItem>,
             ]}
 
@@ -407,44 +431,42 @@ const Graduates = () => {
                   setOpenDialog(true);
                 }}
               >
-                <Box display="flex" alignItems="center">
-                  <RestoreIcon sx={{ mr: 1 }} /> Restore
-                </Box>
+                <div className="flex items-center">
+                  <RestoreIcon className="mr-2" /> Restore
+                </div>
               </MenuItem>
             )}
           </Menu>
-        </Box>
+        </div>
       ),
     },
   ];
 
-  // Filter users based on search term
   const filteredUsers = users.filter((user) => {
     const searchLower = searchTerm.toLowerCase();
     return (
       user.firstName.toLowerCase().includes(searchLower) ||
-      user.secondName.toLowerCase().includes(searchLower) ||
+      user.lastName.toLowerCase().includes(searchLower) ||
       user.email.toLowerCase().includes(searchLower) ||
       (user.role && user.role.toLowerCase().includes(searchLower))
     );
   });
 
   return (
-    <Box m="20px">
+    <div className="m-5">
       <Header
-        title="USER MANAGEMENT"
+        title={title || `${role.toUpperCase()} MANAGEMENT`}
         subtitle={
-          <Box display="flex" alignItems="center" gap={1}>
+          <div className="flex flex-col w-full gap-2 sm:flex-row sm:items-center">
             <Button
               variant="contained"
               onClick={() => setOpenCreateModal(true)}
               sx={{
                 background: colors.greenAccent[600],
                 color: colors.grey[900],
-                "&:hover": {
-                  background: colors.greenAccent[700],
-                },
+                "&:hover": { background: colors.greenAccent[700] },
               }}
+              className="w-full sm:w-auto"
             >
               Create User
             </Button>
@@ -459,16 +481,16 @@ const Graduates = () => {
                 ),
               }}
               sx={{
-                width: 300,
                 "& .MuiOutlinedInput-root": {
                   color: colors.grey[100],
                   "& fieldset": { borderColor: colors.grey[700] },
                   "&:hover fieldset": { borderColor: colors.grey[500] },
                 },
               }}
+              className="w-full sm:w-72"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </Box>
+          </div>
         }
       />
 
@@ -499,44 +521,22 @@ const Graduates = () => {
         </Alert>
       </Snackbar>
 
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": { border: "none" },
-          "& .MuiDataGrid-cell": { borderBottom: "none" },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-        }}
-      >
+      <div className="w-full mt-10 h-[75vh] overflow-x-auto">
         <Dialog
           open={openCreateModal}
           onClose={() => setOpenCreateModal(false)}
         >
-          <Box
-            component="form"
+          <form
             onSubmit={handleCreateUser}
-            sx={{
-              p: 4,
-              background: colors.primary[400],
-              minWidth: 400,
-            }}
+            className="p-6 min-w-[90vw] sm:min-w-[400px]"
+            style={{ background: colors.primary[400] }}
           >
-            <DialogTitle sx={{ color: colors.grey[100], textAlign: "center" }}>
+            <DialogTitle className="text-center" style={{ color: colors.grey[100] }}>
               Create New User
             </DialogTitle>
             <DialogContent>
               {createErrors.non_field_errors && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" className="mb-4">
                   {createErrors.non_field_errors}
                 </Alert>
               )}
@@ -556,6 +556,7 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
 
               <TextField
@@ -564,15 +565,16 @@ const Graduates = () => {
                 variant="filled"
                 label="Second Name"
                 required
-                value={secondName}
+                value={lastName}
                 onChange={(e) => setSecondName(e.target.value)}
-                error={!!createErrors.secondName}
-                helperText={createErrors.secondName}
+                error={!!createErrors.lastName}
+                helperText={createErrors.lastName}
                 InputLabelProps={{ style: { color: colors.grey[300] } }}
                 sx={{
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
 
               <TextField
@@ -600,27 +602,8 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
-
-              <FormControl fullWidth margin="normal" variant="filled">
-                <InputLabel style={{ color: colors.grey[300] }}>
-                  Role
-                </InputLabel>
-                <Select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  input={<OutlinedInput label="Role" />}
-                  sx={{
-                    color: colors.grey[100],
-                    background: colors.primary[500],
-                    "& .MuiSelect-icon": { color: colors.grey[100] },
-                  }}
-                >
-                  <MenuItem value="jobseeker">Job Seeker</MenuItem>
-                  <MenuItem value="employer">Employer</MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
-                </Select>
-              </FormControl>
 
               <TextField
                 fullWidth
@@ -651,12 +634,13 @@ const Graduates = () => {
                   input: { color: colors.grey[100] },
                   background: colors.primary[500],
                 }}
+                className="mt-4"
               />
             </DialogContent>
-            <DialogActions sx={{ justifyContent: "center", pb: 0 }}>
+            <DialogActions className="flex justify-center pb-0">
               <Button
                 onClick={() => setOpenCreateModal(false)}
-                sx={{ color: colors.grey[300] }}
+                style={{ color: colors.grey[300] }}
               >
                 Cancel
               </Button>
@@ -666,15 +650,13 @@ const Graduates = () => {
                 sx={{
                   background: colors.greenAccent[600],
                   color: colors.grey[900],
-                  "&:hover": {
-                    background: colors.greenAccent[700],
-                  },
+                  "&:hover": { background: colors.greenAccent[700] },
                 }}
               >
                 Create User
               </Button>
             </DialogActions>
-          </Box>
+          </form>
         </Dialog>
         <DataGrid
           rows={filteredUsers}
@@ -686,21 +668,36 @@ const Graduates = () => {
           slots={{
             loadingOverlay: LinearProgress,
             toolbar: () => (
-              <Box sx={{ p: 1 }}>
+              <div className="p-2">
                 <Button
                   startIcon={<SearchIcon />}
-                  onClick={() => fetchUsers()}
+                  //onClick={() => fetchUsers()}
                   sx={{ color: colors.grey[100] }}
                 >
                   Refresh
                 </Button>
-              </Box>
+              </div>
             ),
           }}
+          sx={{
+            "& .MuiDataGrid-root": { border: "none" },
+            "& .MuiDataGrid-cell": { borderBottom: "none" },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.blueAccent[700],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.primary[400],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              backgroundColor: colors.blueAccent[700],
+            },
+          }}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
-export default Graduates;
+export default UserManagementTable;

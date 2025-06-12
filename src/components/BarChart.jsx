@@ -17,41 +17,55 @@ const BarChart = ({ data, keys, indexBy, isInteractive = false }) => {
           legend: { text: { fill: colors.grey[100] } },
           ticks: {
             line: { stroke: colors.grey[100], strokeWidth: 1 },
-            text: { fill: colors.grey[100] },
+            text: { fill: colors.grey[100], fontSize: '11px' },
           },
         },
-        legends: { text: { fill: colors.grey[100] } },
+        legends: {
+          text: {
+            fill: colors.grey[100],
+            fontSize: '12px'
+          }
+        },
         tooltip: {
           container: {
             background: colors.primary[400],
             color: colors.grey[100],
+            fontSize: '12px'
           },
         },
       }}
-      margin={{ top: 50, right: 130, bottom: 80, left: 60 }}
-      padding={0.3}
+      margin={{
+        top: 10,
+        right: data.length > 5 ? 10 :5,
+        bottom: data.length > 5 ? 100 :60,
+        left: 70,
+      }}
+      padding={0.4}
       colors={({ id, data }) => data[`${id}Color`] || colors.greenAccent[500]}
       axisBottom={{
         tickSize: 5,
         tickPadding: 5,
-        tickRotation: -45,
-        legend: "Certifications",
+        tickRotation: data.length > 5 ? -45 : 0,
         legendPosition: "middle",
-        legendOffset: 60,
+        legendOffset: data.length > 5 ? 70 : 40,
+        legendText: { fontSize: '12px' }
       }}
       axisLeft={{
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: "Number of Graduates",
         legendPosition: "middle",
-        legendOffset: -50,
+        legendOffset: -40,
+        format: value =>
+          value >= 1000 ? `${value / 1000}k` : value,
+        ...(typeof window !== "undefined" && window.innerWidth < 768
+          ? { tickValues: 5 }
+          : {})
       }}
       enableLabel={false}
-      labelSkipWidth={12}
-      labelSkipHeight={12}
-      animate={true}
-      motionConfig="gentle"
+      labelSkipWidth={16}
+      labelSkipHeight={16}
+      layout={data.length > 8 ? 'vertical' : 'horizontal'}
       isInteractive={isInteractive}
     />
   );

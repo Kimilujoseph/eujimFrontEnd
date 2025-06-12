@@ -182,12 +182,19 @@ const JobSeekerProfile = () => {
     }
   };
 
-  if (!profileData) {
-    return <Typography>Loading profile data...</Typography>;
+ if (!profileData) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-lg text-gray-600">Loading profile data...</div>
+      </div>
+    );
   }
 
   return (
-    <Box component="form" onSubmit={handleSaveProfile} sx={{ width: "100%" }}>
+    <form 
+      onSubmit={handleSaveProfile} 
+      className="w-full max-w-6xl mx-auto px-4 py-6"
+    >
       <ProfileHeader
         name={`${profileData.profile.firstName} ${profileData.profile.secondName}`}
         activeTab={activeTab}
@@ -196,10 +203,10 @@ const JobSeekerProfile = () => {
         setIsEditing={setIsEditing}
       />
 
-      <Box sx={{ p: 2 }}>
+      <div className="mt-6 grid grid-cols-1 gap-6">
         {activeTab === 0 && (
-          <Card>
-            <CardContent>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+            <div className="p-4 md:p-6">
               <BasicInfoSection
                 formData={formData}
                 handleInputChange={(e) => {
@@ -208,26 +215,26 @@ const JobSeekerProfile = () => {
                 }}
                 isEditing={isEditing}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {activeTab === 1 && (
-          <Card>
-            <CardContent>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+            <div className="p-4 md:p-6">
               <SkillsSection
                 skills={profileData.skills}
                 onAddSkill={handleAddSkill}
                 onDeleteSkill={handleDeleteSkill}
                 onUpdateSkill={handleUpdateSkill}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {activeTab === 2 && (
-          <Card>
-            <CardContent>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+            <div className="p-4 md:p-6">
               <EducationSection
                 educations={profileData.educations}
                 newEducation={newEducation}
@@ -242,10 +249,10 @@ const JobSeekerProfile = () => {
                 onDeleteEducation={handleDeleteEducation}
                 onUpdateEducation={handleUpdateEducation}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
-      </Box>
+      </div>
 
       <Snackbar
         open={snackbar.open}
@@ -253,11 +260,15 @@ const JobSeekerProfile = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          className="shadow-lg"
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </form>
   );
 };
 
