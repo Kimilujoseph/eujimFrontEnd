@@ -161,6 +161,28 @@ const Login = () => {
               borderRadius: 1,
             }}
           />
+          <Box
+            display="flex"
+            justifyContent="flex-end"
+            alignItems="center"
+            mb={2}
+          >
+            <Button
+              variant="text"
+              size="small"
+              sx={{
+                color: colors.greenAccent[400],
+                textTransform: "none",
+                fontWeight: 500,
+                "&:hover": { textDecoration: "underline" },
+                p: 0,
+                minWidth: "unset",
+              }}
+              onClick={() => navigate("/forgot-password")}
+            >
+              Forgot password?
+            </Button>
+          </Box>
           <Button
             type="submit"
             fullWidth

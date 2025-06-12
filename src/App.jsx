@@ -4,6 +4,7 @@ import { ColorModeContext, useMode } from "./theme";
 import AuthLayout from "./layouts/authLayout";
 import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
+import Logout from "./auth/Logout"; // <-- Add this import
 import Graduates from "./scenes/graduates/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
@@ -25,6 +26,14 @@ function App() {
                 <AuthLayout>
                   <Login />
                 </AuthLayout>
+              }
+            />
+            <Route
+              path="/logout"
+              element={
+                <ProtectedRoute>
+                  <Logout />
+                </ProtectedRoute>
               }
             />
             <Route
