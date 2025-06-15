@@ -36,7 +36,7 @@ const JobSeekerDashboard = ({ role = role }) => {
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        const endpoint = role == 'admin' ? `/graduate/profile/analytics/${userId}/` : "/graduate/profile/analytics/"
+        const endpoint = role !== 'jobseeker' ? `/graduate/profile/analytics/${userId}/` : "/graduate/profile/analytics/"
 
         const response = await api.get(endpoint);
         console.log("Analytics response:", response);

@@ -24,9 +24,10 @@ import { tokens } from '../theme';
 import api from '../api/api';
 import { Business, GitHub, LinkedIn, LocationOn } from '@mui/icons-material';
 import { useAuth } from "../auth/authContext"
-
+import { useNavigate } from "react-router-dom"
 const SkillSearchComponent = () => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const colors = tokens(theme.palette.mode);
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
@@ -68,28 +69,58 @@ const SkillSearchComponent = () => {
         }
 
         setLoading(true);
+        setError(null);
+        setSearchResults([]); // Clear previous results
+
         try {
             const skillsQuery = selectedSkills.join(',');
             const response = await api.get(
                 `/search/jobseekers/?skills=${skillsQuery}&proficiency=${proficiency}`
             );
-            setSearchResults(response.data);
+
+            // Handle empty results (200 with empty array)
+            if (response.data.length === 0) {
+                setSnackbar({
+                    open: true,
+                    message: 'No candidates found with these skill criteria',
+                    severity: 'info'
+                });
+            } else {
+                setSearchResults(response.data);
+            }
+
         } catch (err) {
-            setError(err.message);
-            setSnackbar({
-                open: true,
-                message: 'Failed to search candidates',
-                severity: 'error'
-            });
+
+            if (err.response?.status === 404) {
+                setSnackbar({
+                    open: true,
+                    message: err.response.data?.message || 'No candidates match your search criteria',
+                    severity: 'info'
+                });
+            }
+            // Handle other errors
+            else {
+                setError(err.message);
+                setSnackbar({
+                    open: true,
+                    message: err.response?.data?.message || 'Failed to search candidates',
+                    severity: 'error'
+                });
+            }
         } finally {
             setLoading(false);
         }
     };
 
+    const handleViewAnalytics = (candidateId, name) => {
+        navigate(`/job-seeker-dashboard/employer-view/${candidateId}/${name}`);
+    };
+
     const handleAddCandidate = async (candidateId, notes = '') => {
         try {
-            await api.post('/api/v1/recruiter/tracking/', {
-                job_seeker: candidateId,
+            console.log("candidate key", candidateId)
+            await api.post('/recruiter/tracking/', {
+                job_seeker_id: candidateId,
                 notes: notes || `Interested in ${selectedSkills.join(', ')} skills`
             });
             setSnackbar({
@@ -108,7 +139,7 @@ const SkillSearchComponent = () => {
 
     const handleUpdateStatus = async (trackingId, status) => {
         try {
-            await api.patch(`/api/v1/recruiter/tracking/manage/${trackingId}/`, { status });
+            await api.patch(`/recruiter/tracking/manage/${trackingId}/`, { status });
             setSnackbar({
                 open: true,
                 message: 'Candidate status updated',
@@ -355,34 +386,16 @@ const SkillSearchComponent = () => {
                 onClose={handleMenuClose}
             >
                 <MenuItem onClick={() => {
-                    handleAddCandidate(selectedCandidate.id);
+                    handleAddCandidate(selectedCandidate.profile.job_seeker_id);
                     handleMenuClose();
                 }}>
                     Add to Pipeline
                 </MenuItem>
                 <MenuItem onClick={() => {
-                    handleUpdateStatus(selectedCandidate.trackingId, 'shortlisted');
+                    handleViewAnalytics(selectedCandidate.id, selectedCandidate.firstName);
                     handleMenuClose();
                 }}>
-                    Shortlist
-                </MenuItem>
-                <MenuItem onClick={() => {
-                    handleUpdateStatus(selectedCandidate.trackingId, 'interviewed');
-                    handleMenuClose();
-                }}>
-                    Mark as Interviewed
-                </MenuItem>
-                <MenuItem onClick={() => {
-                    handleUpdateStatus(selectedCandidate.trackingId, 'hired');
-                    handleMenuClose();
-                }}>
-                    Mark as Hired
-                </MenuItem>
-                <MenuItem onClick={() => {
-                    handleUpdateStatus(selectedCandidate.trackingId, 'rejected');
-                    handleMenuClose();
-                }}>
-                    Reject
+                    View Skills
                 </MenuItem>
             </Menu>
 
