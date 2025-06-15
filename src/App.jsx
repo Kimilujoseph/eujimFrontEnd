@@ -5,6 +5,8 @@ import AuthLayout from "./layouts/authLayout";
 import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
+import Logout from "./auth/Logout"; // <-- Add this import
+import Graduates from "./scenes/graduates/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import RecruitmentPipeline from "./components/employer/recruiterPipeline";
@@ -29,6 +31,14 @@ function App() {
                 <AuthLayout>
                   <Login />
                 </AuthLayout>
+              }
+            />
+            <Route
+              path="/logout"
+              element={
+                <ProtectedRoute>
+                  <Logout />
+                </ProtectedRoute>
               }
             />
             <Route
