@@ -62,7 +62,7 @@ const roleBasedMenuItems = {
   ],
   employer: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/employer-dashboard" },
-    { text: "Profile", icon: <PersonIcon />, to: "/profile" },
+    { text: "Profile", icon: <PersonIcon />, to: "/recruiter/profile" },
     { text: "Find Candidates", icon: <SearchIcon />, to: "/search/skill" },
     { text: "Recruitment Pipeline", icon: <GroupIcon />, to: "/recruitment/pipeline" },
     { text: "Company Profile", icon: <BusinessIcon />, to: "/employer/profile" },

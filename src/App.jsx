@@ -6,12 +6,12 @@ import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
 import Logout from "./auth/Logout"; // <-- Add this import
-import Graduates from "./scenes/graduates/index";
+//import Graduates from "./scenes/graduates/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import RecruitmentPipeline from "./components/employer/recruiterPipeline";
 import SkillSearchComponent from "./components/skillSearch";
-import EmployerDashboard from "./scenes/employerDashboard";
+import EmployerProfile from "./scenes/employerProfile/index";
 import Dashboard from "./scenes/dashboard/index";
 import RecruiterDashboard from "./scenes/employerDashboard/dashboard"
 import ProtectedRoute from "./auth/protectedRoute";
@@ -52,6 +52,7 @@ function App() {
                       <Route path="/admin" element={<UserManagementTable role="admin" title="EMPLOYER MANAGEMENT" />} />
                       <Route path="/search/skill" element={<SkillSearchComponent />} />
                       <Route path="/recruitment/pipeline" element={<RecruitmentPipeline />} />
+                      <Route path="/recruiter/profile" element={<EmployerProfile />} />
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/profile" element={<JobSeekerProfile />} />
                       <Route path="/employer-dashboard" element={<RecruiterDashboard />} />

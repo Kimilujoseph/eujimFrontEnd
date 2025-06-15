@@ -1,29 +1,16 @@
+import { useState, useEffect, useCallback } from "react";
 import {
-    Card,
-    CardHeader,
-    CardContent,
-    List,
-    ListItem,
-    ListItemText,
     Button,
     LinearProgress,
-    IconButton,
-    useTheme,
-    Typography,
-    Box,
     Snackbar,
     Alert
 } from "@mui/material";
-import { tokens } from "../../theme";
-import { useState, useEffect, useCallback } from "react";
 import api from "../../api/api";
-import { CloudUpload, Delete, Download } from "@mui/icons-material";
+import { CloudUpload, Delete, Download, Close } from "@mui/icons-material";
 import Dropzone from "react-dropzone";
-import { useAuth } from "../../auth/authContext"
+import { useAuth } from "../../auth/authContext";
 
-export const DocumentsManager = ({ recruiterId }) => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
+export const DocumentsManager = ({ recruiterId, onClose }) => {
     const [documents, setDocuments] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -37,7 +24,11 @@ export const DocumentsManager = ({ recruiterId }) => {
     const fetchDocuments = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get(`/recruiter/documents/upload/${user?.id || recruiterId}`);
+            const endpoint = user?.role === 'admin'
+                ? `/admin/documents/${recruiterId}`
+                : `/recruiter/documents/upload/${user?.id || recruiterId}`;
+
+            const response = await api.get(endpoint);
             setDocuments(response.data);
         } catch (err) {
             setSnackbar({
@@ -48,7 +39,7 @@ export const DocumentsManager = ({ recruiterId }) => {
         } finally {
             setLoading(false);
         }
-    }, [user?.id, recruiterId]);
+    }, [user?.id, recruiterId, user?.role]);
 
     const handleUpload = async (files) => {
         setUploading(true);
@@ -56,10 +47,13 @@ export const DocumentsManager = ({ recruiterId }) => {
             for (const file of files) {
                 const formData = new FormData();
                 formData.append("upload_path", file);
-                // You can set a default doc_type or extract from file name
-                formData.append("doc_type", "registration certificate"); // or make this dynamic
+                formData.append("doc_type", "registration certificate");
 
-                await api.post("/recruiter/documents/upload/", formData, {
+                const endpoint = user?.role === 'admin'
+                    ? `/admin/documents/${recruiterId}`
+                    : "/recruiter/documents/upload/";
+
+                await api.post(endpoint, formData, {
                     headers: { "Content-Type": "multipart/form-data" }
                 });
             }
@@ -82,7 +76,11 @@ export const DocumentsManager = ({ recruiterId }) => {
 
     const handleDelete = async (docId) => {
         try {
-            await api.delete(`/recruiter/documents/upload/${docId}/`);
+            const endpoint = user?.role === 'admin'
+                ? `/admin/documents/${docId}`
+                : `/recruiter/documents/upload/${docId}/`;
+
+            await api.delete(endpoint);
             setSnackbar({
                 open: true,
                 message: "Document deleted successfully",
@@ -102,7 +100,6 @@ export const DocumentsManager = ({ recruiterId }) => {
         fetchDocuments();
     }, [fetchDocuments]);
 
-    // Extract file name from upload_path
     const getFileName = (url) => {
         if (!url) return "Unknown";
         const parts = url.split('/');
@@ -110,21 +107,21 @@ export const DocumentsManager = ({ recruiterId }) => {
     };
 
     return (
-        <Card sx={{
-            backgroundColor: colors.primary[400],
-            boxShadow: "none",
-            border: `1px solid ${colors.grey[700]}`
-        }}>
-            <CardHeader
-                title="Company Documents"
-                titleTypographyProps={{
-                    variant: "h5",
-                    color: colors.grey[100]
-                }}
-                sx={{ borderBottom: `1px solid ${colors.grey[700]}` }}
-            />
+        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-3xl mx-auto">
+            {/* Header with close button */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                    {user?.role === 'admin' ? 'Manage Company Documents' : 'Company Documents'}
+                </h2>
+                <button
+                    onClick={onClose}
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                >
+                    <Close />
+                </button>
+            </div>
 
-            <CardContent>
+            <div className="p-4">
                 {loading ? (
                     <LinearProgress />
                 ) : (
@@ -133,115 +130,108 @@ export const DocumentsManager = ({ recruiterId }) => {
                             onDrop={handleUpload}
                             accept={{
                                 "image/*": [],
-                                "application/pdf": [".pdf"]
+                                "application/pdf": [".pdf"],
+                                "application/msword": [".doc"],
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"]
                             }}
                             maxFiles={5}
                             disabled={uploading}
                         >
                             {({ getRootProps, getInputProps }) => (
-                                <Box
+                                <div
                                     {...getRootProps()}
-                                    sx={{
-                                        p: 4,
-                                        border: `2px dashed ${colors.grey[600]}`,
-                                        borderRadius: "4px",
-                                        textAlign: "center",
-                                        backgroundColor: colors.primary[500],
-                                        cursor: "pointer",
-                                        "&:hover": {
-                                            borderColor: colors.greenAccent[500]
-                                        }
-                                    }}
+                                    className={`p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-center bg-gray-50 dark:bg-gray-700 cursor-pointer transition-colors ${uploading ? 'opacity-70' : 'hover:border-green-500'
+                                        }`}
                                 >
                                     <input {...getInputProps()} />
-                                    <CloudUpload sx={{
-                                        fontSize: "3rem",
-                                        color: colors.grey[300],
-                                        mb: 1
-                                    }} />
-                                    <Typography variant="body1" color={colors.grey[100]}>
+                                    <CloudUpload className="text-4xl text-gray-400 dark:text-gray-300 mb-2 mx-auto" />
+                                    <p className="text-gray-700 dark:text-gray-200">
                                         Drag & drop files here, or click to select
-                                    </Typography>
-                                    <Typography variant="body2" color={colors.grey[400]}>
-                                        (Accepted: images, PDFs, max 5 files)
-                                    </Typography>
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        (Accepted: images, PDFs, Word docs, max 5 files)
+                                    </p>
                                     {uploading && (
-                                        <LinearProgress sx={{ mt: 2 }} />
+                                        <LinearProgress className="mt-3" />
                                     )}
-                                </Box>
+                                </div>
                             )}
                         </Dropzone>
 
-                        <List sx={{ mt: 3 }}>
+                        <div className="mt-4">
                             {documents.length === 0 ? (
-                                <Typography
-                                    variant="body1"
-                                    color={colors.grey[300]}
-                                    textAlign="center"
-                                    sx={{ py: 4 }}
-                                >
+                                <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                                     No documents uploaded yet
-                                </Typography>
+                                </p>
                             ) : (
-                                documents.map((doc) => (
-                                    <ListItem
-                                        key={doc.id || doc.upload_path} // Use upload_path as fallback key
-                                        sx={{
-                                            backgroundColor: colors.primary[500],
-                                            mb: 1,
-                                            borderRadius: "4px",
-                                            "&:hover": {
-                                                backgroundColor: colors.primary[600]
-                                            }
-                                        }}
-                                        secondaryAction={
-                                            <>
-                                                <IconButton
-                                                    edge="end"
-                                                    aria-label="download"
-                                                    href={`recruiter/documents/${doc.id}/download/`}
+                                <ul className="space-y-2">
+                                    {documents.map((doc) => (
+                                        <li
+                                            key={doc.id || doc.upload_path}
+                                            className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex justify-between items-center"
+                                        >
+                                            <div className="min-w-0">
+                                                <p className="text-gray-800 dark:text-gray-100 font-medium truncate">
+                                                    {getFileName(doc.upload_path)}
+                                                </p>
+                                                <div className="flex flex-wrap gap-x-4 text-sm text-gray-500 dark:text-gray-400">
+                                                    <span>
+                                                        {doc.createdAt && new Date(doc.createdAt).toLocaleDateString()}
+                                                    </span>
+                                                    <span>{doc.doc_type}</span>
+                                                    <span className={`${doc.status === 'approved' ? 'text-green-500' :
+                                                            doc.status === 'rejected' ? 'text-red-500' :
+                                                                'text-yellow-500'
+                                                        }`}>
+                                                        {doc.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex space-x-2">
+                                                <a
+                                                    href={user?.role === 'admin'
+                                                        ? `/admin/documents/${doc.id}/download`
+                                                        : `/recruiter/documents/${doc.id}/download/`}
                                                     target="_blank"
-                                                    sx={{ color: colors.greenAccent[500] }}
+                                                    rel="noopener noreferrer"
+                                                    className="text-green-500 hover:text-green-700 dark:hover:text-green-400 p-1"
                                                 >
                                                     <Download />
-                                                </IconButton>
-                                                <IconButton
-                                                    edge="end"
-                                                    aria-label="delete"
+                                                </a>
+                                                <button
                                                     onClick={() => handleDelete(doc.id)}
-                                                    sx={{ color: colors.redAccent[500] }}
+                                                    className="text-red-500 hover:text-red-700 dark:hover:text-red-400 p-1"
                                                 >
                                                     <Delete />
-                                                </IconButton>
-                                            </>
-                                        }
-                                    >
-                                        <ListItemText
-                                            primary={
-                                                <Typography
-                                                    variant="body1"
-                                                    color={colors.grey[100]}
-                                                    sx={{ wordBreak: "break-word" }}
-                                                >
-                                                    {getFileName(doc.upload_path)}
-                                                </Typography>
-                                            }
-                                            secondary={
-                                                <Typography
-                                                    variant="body2"
-                                                    color={colors.grey[400]}
-                                                >
-                                                    {doc.createdAt && new Date(doc.createdAt).toLocaleDateString()} • {doc.doc_type} • {doc.status}
-                                                </Typography>
-                                            }
-                                        />
-                                    </ListItem>
-                                ))
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
                             )}
-                        </List>
+                        </div>
                     </>
                 )}
-            </CardContent>
+            </div>
+
+            {/* Status actions for admin */}
+            {user?.role === 'admin' && documents.length > 0 && (
+                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+                    <button
+                        onClick={() => handleBulkStatusUpdate('approved')}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
+                    >
+                        Approve All
+                    </button>
+                    <button
+                        onClick={() => handleBulkStatusUpdate('rejected')}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
+                    >
+                        Reject All
+                    </button>
+                </div>
+            )}
 
             <Snackbar
                 open={snackbar.open}
@@ -251,12 +241,33 @@ export const DocumentsManager = ({ recruiterId }) => {
             >
                 <Alert
                     severity={snackbar.severity}
-                    sx={{ width: "100%" }}
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+                    className="w-full"
                 >
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-        </Card>
+        </div>
     );
+
+    async function handleBulkStatusUpdate(status) {
+        try {
+            setLoading(true);
+            await api.put(`/admin/documents/bulk-status/${recruiterId}`, { status });
+            setSnackbar({
+                open: true,
+                message: `All documents ${status} successfully`,
+                severity: "success"
+            });
+            fetchDocuments();
+        } catch (err) {
+            setSnackbar({
+                open: true,
+                message: err.response?.data?.message || `Failed to ${status} documents`,
+                severity: "error"
+            });
+        } finally {
+            setLoading(false);
+        }
+    }
 };
