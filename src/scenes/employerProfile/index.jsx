@@ -152,7 +152,7 @@ const EmployerDashboard = () => {
     return (
         <div className="p-6">
             <Header
-                title="EMPLOYER DASHBOARD"
+                title="EMPLOYER PROFILE"
                 subtitle="Manage your recruitment activities"
             />
 
