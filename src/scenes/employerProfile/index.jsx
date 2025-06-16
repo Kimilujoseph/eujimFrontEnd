@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
     Button,
     Modal,
     CircularProgress,
     Snackbar,
-    Alert
+    Alert,
+    useTheme
 } from '@mui/material';
 import { CompanyRegistration } from '../../components/employer/companyRegistration';
 import { DocumentsManager } from '../../components/employer/documentUpload';
@@ -17,9 +18,12 @@ import {
     Description as DocumentsIcon,
     Person as PersonIcon
 } from '@mui/icons-material';
+import { tokens } from '../../theme';
 
 const EmployerDashboard = () => {
     const { user } = useAuth();
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
 
     const [companyData, setCompanyData] = useState(null);
     const [userData, setUserData] = useState(null);
@@ -67,10 +71,10 @@ const EmployerDashboard = () => {
 
         fetchProfileData();
     }, [user.id, user.email, user.firstName, user.lastName]);
+
     const handleCompanyUpdate = async (data) => {
         try {
             if (companyData) {
-                // Update existing company
                 await api.put(`/recruiter/profile/${user.id}`, data);
                 setSnackbar({
                     open: true,
@@ -78,7 +82,6 @@ const EmployerDashboard = () => {
                     severity: 'success'
                 });
             } else {
-                // Create new company
                 await api.post('/recruiter/register', {
                     ...data,
                     userId: user.id
@@ -89,7 +92,7 @@ const EmployerDashboard = () => {
                     severity: 'success'
                 });
             }
-            await fetchCompanyProfile(); // Refresh company data
+            await fetchCompanyProfile();
             setRegistrationModalOpen(false);
         } catch (err) {
             setSnackbar({
@@ -100,6 +103,7 @@ const EmployerDashboard = () => {
             });
         }
     };
+
     const handleUpdateUserProfile = async (updatedData) => {
         try {
             await api.put(`/api/v1/recruiter/profile/${user.id}`, updatedData);
@@ -118,18 +122,6 @@ const EmployerDashboard = () => {
             });
         }
     };
-
-
-    const handleCompleteRegistration = (data) => {
-        setCompanyData(data);
-        setRegistrationModalOpen(false);
-        setSnackbar({
-            open: true,
-            message: 'Company registration completed!',
-            severity: 'success'
-        });
-    };
-
 
     const handleOpenDocuments = () => {
         if (!companyData) {
@@ -164,15 +156,25 @@ const EmployerDashboard = () => {
                 <div className="mt-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* User Profile Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
+                        <div 
+                            className="rounded-lg shadow-md p-6"
+                            style={{ 
+                                backgroundColor: colors.primary[400],
+                                border: `1px solid ${colors.grey[700]}`
+                            }}
+                        >
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center">
+                                <h2 
+                                    className="text-xl font-semibold flex items-center"
+                                    style={{ color: colors.grey[100] }}
+                                >
                                     <PersonIcon className="mr-2" />
                                     Personal Profile
                                 </h2>
                                 <button
                                     onClick={() => setUserEditModalOpen(true)}
-                                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                    style={{ color: colors.blueAccent[500] }}
+                                    className="hover:opacity-80"
                                 >
                                     <EditIcon />
                                 </button>
@@ -181,30 +183,40 @@ const EmployerDashboard = () => {
                             {userData && (
                                 <div className="space-y-3">
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                                        <p className="text-gray-800 dark:text-gray-200">
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Name</p>
+                                        <p style={{ color: colors.grey[100] }}>
                                             {userData.firstName} {userData.lastName}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                                        <p className="text-gray-800 dark:text-gray-200">{userData.email}</p>
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Email</p>
+                                        <p style={{ color: colors.grey[100] }}>{userData.email}</p>
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Company Profile Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 lg:col-span-2">
+                        <div 
+                            className="rounded-lg shadow-md p-6 lg:col-span-2"
+                            style={{ 
+                                backgroundColor: colors.primary[400],
+                                border: `1px solid ${colors.grey[700]}`
+                            }}
+                        >
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center">
+                                <h2 
+                                    className="text-xl font-semibold flex items-center"
+                                    style={{ color: colors.grey[100] }}
+                                >
                                     <BusinessIcon className="mr-2" />
                                     Company Profile
                                 </h2>
                                 {companyData && (
                                     <button
                                         onClick={() => setRegistrationModalOpen(true)}
-                                        className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                        style={{ color: colors.blueAccent[500] }}
+                                        className="hover:opacity-80"
                                     >
                                         <EditIcon />
                                     </button>
@@ -214,36 +226,40 @@ const EmployerDashboard = () => {
                             {companyData ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Company Name</p>
-                                        <p className="text-gray-800 dark:text-gray-200 font-medium">
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Company Name</p>
+                                        <p className="font-medium" style={{ color: colors.grey[100] }}>
                                             {companyData.companyName}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Industry</p>
-                                        <p className="text-gray-800 dark:text-gray-200">{companyData.industry}</p>
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Industry</p>
+                                        <p style={{ color: colors.grey[100] }}>{companyData.industry}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Contact</p>
-                                        <p className="text-gray-800 dark:text-gray-200">{companyData.contactInfo}</p>
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Contact</p>
+                                        <p style={{ color: colors.grey[100] }}>{companyData.contactInfo}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Company Email</p>
-                                        <p className="text-gray-800 dark:text-gray-200">{companyData.companyEmail}</p>
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Company Email</p>
+                                        <p style={{ color: colors.grey[100] }}>{companyData.companyEmail}</p>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Description</p>
-                                        <p className="text-gray-800 dark:text-gray-200">{companyData.description}</p>
+                                        <p className="text-sm" style={{ color: colors.grey[300] }}>Description</p>
+                                        <p style={{ color: colors.grey[100] }}>{companyData.description}</p>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="text-center py-6">
-                                    <p className="text-gray-500 dark:text-gray-400 mb-4">
+                                    <p style={{ color: colors.grey[300], marginBottom: '1rem' }}>
                                         No company profile registered yet
                                     </p>
                                     <button
                                         onClick={() => setRegistrationModalOpen(true)}
-                                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
+                                        style={{ 
+                                            backgroundColor: colors.greenAccent[500],
+                                            color: colors.grey[100]
+                                        }}
+                                        className="px-4 py-2 rounded-md transition-colors hover:opacity-90"
                                     >
                                         Register Company
                                     </button>
@@ -252,25 +268,33 @@ const EmployerDashboard = () => {
                         </div>
 
                         {/* Documents Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 lg:col-span-3">
+                        <div 
+                            className="rounded-lg shadow-md p-6 lg:col-span-3"
+                            style={{ 
+                                backgroundColor: colors.primary[400],
+                                border: `1px solid ${colors.grey[700]}`
+                            }}
+                        >
                             <div className="flex items-center mb-4">
-                                <DocumentsIcon className="mr-2 text-gray-700 dark:text-gray-300" />
-                                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                                <DocumentsIcon className="mr-2" style={{ color: colors.grey[300] }} />
+                                <h2 className="text-xl font-semibold" style={{ color: colors.grey[100] }}>
                                     Company Documents
                                 </h2>
                             </div>
 
-                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            <p style={{ color: colors.grey[300], marginBottom: '1rem' }}>
                                 Upload and manage your company documents, certifications, and other files
                             </p>
 
                             <button
                                 onClick={handleOpenDocuments}
                                 disabled={!companyData}
-                                className={`px-4 py-2 rounded-md transition-colors ${companyData
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                    : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                                    }`}
+                                style={{
+                                    backgroundColor: companyData ? colors.blueAccent[500] : colors.grey[700],
+                                    color: colors.grey[100],
+                                    opacity: companyData ? 1 : 0.7
+                                }}
+                                className="px-4 py-2 rounded-md transition-colors hover:opacity-90"
                             >
                                 Manage Documents
                             </button>
@@ -286,7 +310,10 @@ const EmployerDashboard = () => {
                 aria-labelledby="company-registration-modal"
             >
                 <div className="flex items-center justify-center min-h-screen p-4">
-                    <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+                    <div 
+                        className="w-full max-w-4xl rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto"
+                        style={{ backgroundColor: colors.primary[400] }}
+                    >
                         <CompanyRegistration
                             initialData={companyData}
                             onComplete={handleCompanyUpdate}
@@ -304,8 +331,14 @@ const EmployerDashboard = () => {
                 aria-labelledby="user-edit-modal"
             >
                 <div className="flex items-center justify-center min-h-screen p-4">
-                    <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
-                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                    <div 
+                        className="w-full max-w-md rounded-lg shadow-xl p-6"
+                        style={{ backgroundColor: colors.primary[400] }}
+                    >
+                        <h2 
+                            className="text-xl font-semibold mb-4"
+                            style={{ color: colors.grey[100] }}
+                        >
                             Edit Personal Information
                         </h2>
                         <form onSubmit={(e) => {
@@ -319,38 +352,62 @@ const EmployerDashboard = () => {
                         }}>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label 
+                                        className="block text-sm font-medium mb-1"
+                                        style={{ color: colors.grey[300] }}
+                                    >
                                         First Name
                                     </label>
                                     <input
                                         name="firstName"
                                         type="text"
                                         defaultValue={userData?.firstName}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                        className="w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        style={{ 
+                                            backgroundColor: colors.primary[500],
+                                            borderColor: colors.grey[700],
+                                            color: colors.grey[100]
+                                        }}
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label 
+                                        className="block text-sm font-medium mb-1"
+                                        style={{ color: colors.grey[300] }}
+                                    >
                                         Last Name
                                     </label>
                                     <input
                                         name="lastName"
                                         type="text"
                                         defaultValue={userData?.lastName}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                        className="w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        style={{ 
+                                            backgroundColor: colors.primary[500],
+                                            borderColor: colors.grey[700],
+                                            color: colors.grey[100]
+                                        }}
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label 
+                                        className="block text-sm font-medium mb-1"
+                                        style={{ color: colors.grey[300] }}
+                                    >
                                         Email
                                     </label>
                                     <input
                                         name="email"
                                         type="email"
                                         defaultValue={userData?.email}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                                        className="w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        style={{ 
+                                            backgroundColor: colors.primary[500],
+                                            borderColor: colors.grey[700],
+                                            color: colors.grey[100]
+                                        }}
                                         required
                                     />
                                 </div>
@@ -358,13 +415,19 @@ const EmployerDashboard = () => {
                                     <button
                                         type="button"
                                         onClick={() => setUserEditModalOpen(false)}
-                                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        className="px-4 py-2 rounded-md"
+                                        style={{ 
+                                            borderColor: colors.grey[700],
+                                            color: colors.grey[100],
+                                            backgroundColor: colors.primary[500]
+                                        }}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                                        className="px-4 py-2 rounded-md text-white"
+                                        style={{ backgroundColor: colors.blueAccent[500] }}
                                     >
                                         Save Changes
                                     </button>
@@ -382,7 +445,10 @@ const EmployerDashboard = () => {
                 aria-labelledby="documents-management-modal"
             >
                 <div className="flex items-center justify-center min-h-screen p-4">
-                    <div className="w-full max-w-6xl bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto">
+                    <div 
+                        className="w-full max-w-6xl rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto"
+                        style={{ backgroundColor: colors.primary[400] }}
+                    >
                         <DocumentsManager
                             recruiterId={user.id}
                             onClose={() => setDocumentsModalOpen(false)}
@@ -401,7 +467,7 @@ const EmployerDashboard = () => {
                 <Alert
                     severity={snackbar.severity}
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-                    className="w-full"
+                    sx={{ width: '100%' }}
                 >
                     {snackbar.message}
                 </Alert>

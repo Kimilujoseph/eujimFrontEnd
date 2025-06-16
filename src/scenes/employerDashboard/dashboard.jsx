@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   People as CandidatesIcon,
   Work as HiredIcon,
@@ -29,11 +29,15 @@ import {
 } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/api';
+import { ColorModeContext, tokens } from '../../theme';
+import { useTheme } from '@mui/material';
 
 const RecruiterDashboard = () => {
-  const theme = useTheme();
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
+    const colorMode = useContext(ColorModeContext);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -78,334 +82,309 @@ const RecruiterDashboard = () => {
     actions: item.actions,
   }));
 
-  const statusColors = {
-    hired: 'success.main',
-    interviewed: 'warning.main',
-    shortlisted: 'info.main',
-    rejected: 'error.main',
-  };
+    // Status colors
+    const statusColors = {
+        hired: colors.greenAccent[500],
+        interviewed: colors.yellowAccent[500],
+        shortlisted: colors.blueAccent[500],
+        rejected: colors.redAccent[500]
+    };
 
-  const statusBgColors = {
-    hired: 'success.light',
-    interviewed: 'warning.light',
-    shortlisted: 'info.light',
-    rejected: 'error.light',
-  };
+    return (
+        <div className="p-5 w-full max-w-full overflow-x-hidden">
+            <h1 className="text-2xl font-bold mb-6" style={{ color: colors.grey[100] }}>
+                Recruiter Dashboard
+            </h1>
 
-  return (
-    <Box sx={{ p: 3, width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
-      <Typography variant="h4" fontWeight={700} mb={3}>
-        Recruiter Dashboard
-      </Typography>
+            {/* Overview Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 w-full">
+                {/* Total Candidates */}
+                <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="text-sm font-medium" style={{ color: colors.grey[300] }}>Total Candidates</h3>
+                            <p className="text-3xl font-semibold" style={{ color: colors.grey[100] }}>
+                                {recruitment_overview.total_candidates}
+                            </p>
+                        </div>
+                        <div className={`p-3 rounded-full`} style={{ backgroundColor: colors.blueAccent[900] }}>
+                            <CandidatesIcon style={{ color: colors.blueAccent[500] }} />
+                        </div>
+                    </div>
+                </div>
 
-      {/* Overview Cards */}
-      <Grid container spacing={2} mb={3}>
-        {/* Total Candidates */}
-        <Grid item xs={12} sm={6} md={4} lg={2.4}>
-          <Paper sx={{ p: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Total Candidates
-                </Typography>
-                <Typography variant="h4" fontWeight={600}>
-                  {recruitment_overview.total_candidates}
-                </Typography>
-              </Box>
-              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'primary.light' }}>
-                <CandidatesIcon color="primary" />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
+                {/* Hired */}
+                <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="text-sm font-medium" style={{ color: colors.grey[300] }}>Hired</h3>
+                            <p className="text-3xl font-semibold" style={{ color: colors.greenAccent[500] }}>
+                                {recruitment_overview.hired}
+                            </p>
+                        </div>
+                        <div className={`p-3 rounded-full`} style={{ backgroundColor: colors.greenAccent[900] }}>
+                            <HiredIcon style={{ color: colors.greenAccent[500] }} />
+                        </div>
+                    </div>
+                </div>
 
-        {/* Hired */}
-        <Grid item xs={12} sm={6} md={4} lg={2.4}>
-          <Paper sx={{ p: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Hired
-                </Typography>
-                <Typography variant="h4" fontWeight={600} color={statusColors.hired}>
-                  {recruitment_overview.hired}
-                </Typography>
-              </Box>
-              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.hired }}>
-                <HiredIcon color="success" />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
+                {/* Interviewed */}
+                <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="text-sm font-medium" style={{ color: colors.grey[300] }}>Interviewed</h3>
+                            <p className="text-3xl font-semibold" style={{ color: colors.yellowAccent[500] }}>
+                                {recruitment_overview.interviewed}
+                            </p>
+                        </div>
+                        <div className={`p-3 rounded-full`} style={{ backgroundColor: colors.yellowAccent[900] }}>
+                            <InterviewedIcon style={{ color: colors.yellowAccent[500] }} />
+                        </div>
+                    </div>
+                </div>
 
-        {/* Interviewed */}
-        <Grid item xs={12} sm={6} md={4} lg={2.4}>
-          <Paper sx={{ p: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Interviewed
-                </Typography>
-                <Typography variant="h4" fontWeight={600} color={statusColors.interviewed}>
-                  {recruitment_overview.interviewed}
-                </Typography>
-              </Box>
-              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.interviewed }}>
-                <InterviewedIcon color="warning" />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
+                {/* Shortlisted */}
+                <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="text-sm font-medium" style={{ color: colors.grey[300] }}>Shortlisted</h3>
+                            <p className="text-3xl font-semibold" style={{ color: colors.blueAccent[500] }}>
+                                {recruitment_overview.shortlisted}
+                            </p>
+                        </div>
+                        <div className={`p-3 rounded-full`} style={{ backgroundColor: colors.blueAccent[900] }}>
+                            <ShortlistedIcon style={{ color: colors.blueAccent[500] }} />
+                        </div>
+                    </div>
+                </div>
 
-        {/* Shortlisted */}
-        <Grid item xs={12} sm={6} md={4} lg={2.4}>
-          <Paper sx={{ p: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Shortlisted
-                </Typography>
-                <Typography variant="h4" fontWeight={600} color={statusColors.shortlisted}>
-                  {recruitment_overview.shortlisted}
-                </Typography>
-              </Box>
-              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.shortlisted }}>
-                <ShortlistedIcon color="info" />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
+                {/* Rejected */}
+                <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h3 className="text-sm font-medium" style={{ color: colors.grey[300] }}>Rejected</h3>
+                            <p className="text-3xl font-semibold" style={{ color: colors.redAccent[500] }}>
+                                {recruitment_overview.rejected}
+                            </p>
+                        </div>
+                        <div className={`p-3 rounded-full`} style={{ backgroundColor: colors.redAccent[900] }}>
+                            <RejectedIcon style={{ color: colors.redAccent[500] }} />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        {/* Rejected */}
-        <Grid item xs={12} sm={6} md={4} lg={2.4}>
-          <Paper sx={{ p: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Rejected
-                </Typography>
-                <Typography variant="h4" fontWeight={600} color={statusColors.rejected}>
-                  {recruitment_overview.rejected}
-                </Typography>
-              </Box>
-              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.rejected }}>
-                <RejectedIcon color="error" />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
+            {/* Main Content */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Left Column - 2/3 width */}
+                <div className="md:col-span-2 space-y-6">
+                    {/* Weekly Activity Chart */}
+                    <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                        <h3 className="text-lg font-semibold mb-4" style={{ color: colors.grey[100] }}>
+                            Weekly Activity
+                        </h3>
+                        <div className="h-80">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={weeklyActivityData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={colors.grey[700]} />
+                                    <XAxis
+                                        dataKey="day"
+                                        style={{ fill: colors.grey[300], fontSize: '0.75rem' }}
+                                    />
+                                    <YAxis style={{ fill: colors.grey[300], fontSize: '0.75rem' }} />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: colors.primary[500],
+                                            borderColor: colors.grey[700],
+                                            borderRadius: '0.5rem',
+                                            color: colors.grey[100]
+                                        }}
+                                        itemStyle={{
+                                            color: colors.grey[100]
+                                        }}
+                                        labelStyle={{
+                                            color: colors.grey[100],
+                                            fontWeight: '600'
+                                        }}
+                                    />
+                                    <Bar
+                                        dataKey="actions"
+                                        fill={colors.greenAccent[500]}
+                                        radius={[4, 4, 0, 0]}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
 
-      {/* Main Content */}
-      <Grid container spacing={3}>
-        {/* Left Column - 2/3 width */}
-        <Grid item xs={12} md={8}>
-          {/* Weekly Activity Chart */}
-          <Paper sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" fontWeight={600} mb={2}>
-              Weekly Activity
-            </Typography>
-            <Box height={300}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weeklyActivityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="actions" fill="#4ade80" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
+                    {/* Recent Activities */}
+                    <div className="rounded-lg shadow overflow-hidden" style={{ backgroundColor: colors.primary[400] }}>
+                        <div className="p-4 flex items-center border-b" style={{ borderColor: colors.grey[700] }}>
+                            <RecentActivityIcon style={{ color: colors.grey[300], marginRight: '0.5rem' }} />
+                            <h3 className="text-lg font-semibold" style={{ color: colors.grey[100] }}>
+                                Recent Activities
+                            </h3>
+                        </div>
+                        <div className="divide-y" style={{ borderColor: colors.grey[700] }}>
+                            {recent_activities.map((activity, index) => (
+                                <div key={index} className="p-4">
+                                    <div className="flex items-start">
+                                        <div 
+                                            className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-white"
+                                            style={{ backgroundColor: statusColors[activity.status] }}
+                                        >
+                                            {activity.job_seeker__user__firstName?.charAt(0)}
+                                            {activity.job_seeker__user__lastName?.charAt(0)}
+                                        </div>
+                                        <div className="ml-4">
+                                            <h4 className="text-sm font-medium" style={{ color: colors.grey[100] }}>
+                                                {activity.job_seeker__user__firstName} {activity.job_seeker__user__lastName}
+                                            </h4>
+                                            <p className="text-xs mt-1" style={{ color: colors.grey[400] }}>
+                                                {new Date(activity.updatedAt).toLocaleString()}
+                                            </p>
+                                            <div className="flex items-center mt-2">
+                                                <span 
+                                                    className="px-2 py-1 text-xs rounded-full text-white"
+                                                    style={{ backgroundColor: statusColors[activity.status] }}
+                                                >
+                                                    {activity.status}
+                                                </span>
+                                                {activity.notes && (
+                                                    <p className="text-xs ml-2" style={{ color: colors.grey[400] }}>
+                                                        {activity.notes}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-          {/* Recent Activities */}
-          <Paper sx={{ overflow: 'hidden' }}>
-            <Box p={2} display="flex" alignItems="center" borderBottom="1px solid" borderColor="divider">
-              <RecentActivityIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" fontWeight={600}>
-                Recent Activities
-              </Typography>
-            </Box>
-            <Box>
-              {recent_activities.map((activity, index) => (
-                <Box
-                  key={index}
-                  p={2}
-                  borderBottom={index < recent_activities.length - 1 ? '1px solid' : 'none'}
-                  borderColor="divider"
-                >
-                  <Box display="flex" alignItems="flex-start">
-                    <Avatar sx={{ bgcolor: statusColors[activity.status] }}>
-                      {activity.job_seeker__user__firstName?.charAt(0)}
-                      {activity.job_seeker__user__lastName?.charAt(0)}
-                    </Avatar>
-                    <Box ml={2}>
-                      <Typography variant="subtitle2" fontWeight={600}>
-                        {activity.job_seeker__user__firstName} {activity.job_seeker__user__lastName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(activity.updatedAt).toLocaleString()}
-                      </Typography>
-                      <Box display="flex" alignItems="center" mt={1}>
-                        <Box
-                          sx={{
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 4,
-                            bgcolor: statusColors[activity.status],
-                            color: 'white',
-                            fontSize: 12,
-                            fontWeight: 600,
-                            textTransform: 'capitalize',
-                          }}
-                        >
-                          {activity.status}
-                        </Box>
-                        {activity.notes && (
-                          <Typography variant="caption" color="text.secondary" ml={1}>
-                            {activity.notes}
-                          </Typography>
+                {/* Right Column - 1/3 width */}
+                <div className="space-y-6">
+                    {/* Performance Metrics */}
+                    <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                        <h3 className="text-lg font-semibold mb-4" style={{ color: colors.grey[100] }}>
+                            Performance Metrics
+                        </h3>
+                        <div className="mb-6">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-sm" style={{ color: colors.grey[300] }}>Avg. Response Time</span>
+                                <div className="flex items-center">
+                                    <ResponseTimeIcon className="text-sm mr-1" style={{ color: colors.grey[300] }} />
+                                    <span className="text-sm" style={{ color: colors.grey[100] }}>
+                                        {Math.round(parseFloat(performance_metrics.avg_time_to_respond) / 3600)} hours
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="w-full rounded-full h-2" style={{ backgroundColor: colors.grey[700] }}>
+                                <div
+                                    className="h-2 rounded-full"
+                                    style={{ 
+                                        width: `${Math.min(100, parseFloat(performance_metrics.avg_time_to_respond) / 100)}%`,
+                                        backgroundColor: colors.greenAccent[500]
+                                    }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm" style={{ color: colors.grey[300] }}>Interviewed</span>
+                            <span className="text-sm" style={{ color: colors.grey[100] }}>
+                                {performance_metrics.interviewed_count}
+                            </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm" style={{ color: colors.grey[300] }}>Shortlisted</span>
+                            <span className="text-sm" style={{ color: colors.grey[100] }}>
+                                {performance_metrics.shortlisted_count}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Document Status */}
+                    <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                        <div className="flex items-center mb-4">
+                            <DocumentsIcon style={{ color: colors.grey[300], marginRight: '0.5rem' }} />
+                            <h3 className="text-lg font-semibold" style={{ color: colors.grey[100] }}>
+                                Document Status
+                            </h3>
+                        </div>
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm" style={{ color: colors.grey[300] }}>Total Documents</span>
+                            <span className="text-sm" style={{ color: colors.grey[100] }}>
+                                {document_status.total_documents}
+                            </span>
+                        </div>
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm" style={{ color: colors.grey[300] }}>Pending</span>
+                            <span className="text-sm" style={{ color: colors.grey[100] }}>
+                                {document_status.pending}
+                            </span>
+                        </div>
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-sm" style={{ color: colors.grey[300] }}>Approved</span>
+                            <span className="text-sm" style={{ color: colors.grey[100] }}>
+                                {document_status.approved}
+                            </span>
+                        </div>
+                        {document_status.latest_document && (
+                            <p className="text-xs" style={{ color: colors.grey[400] }}>
+                                Latest: {document_status.latest_document}
+                            </p>
                         )}
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          </Paper>
-        </Grid>
+                    </div>
 
-        {/* Right Column - 1/3 width */}
-        <Grid item xs={12} md={4}>
-          {/* Performance Metrics */}
-          <Paper sx={{ p: 2, mb: 3 }}>
-            <Typography variant="h6" fontWeight={600} mb={2}>
-              Performance Metrics
-            </Typography>
-            <Box mb={3}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                <Typography variant="body2" color="text.secondary">
-                  Avg. Response Time
-                </Typography>
-                <Box display="flex" alignItems="center">
-                  <ResponseTimeIcon fontSize="small" sx={{ mr: 0.5 }} />
-                  <Typography variant="body2">
-                    {Math.round(parseFloat(performance_metrics.avg_time_to_respond) / 3600)} hours
-                  </Typography>
-                </Box>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={Math.min(100, parseFloat(performance_metrics.avg_time_to_respond) / 100)}
-                color="success"
-                sx={{ height: 8, borderRadius: 4 }}
-              />
-            </Box>
-
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="body2" color="text.secondary">
-                Interviewed
-              </Typography>
-              <Typography variant="body2">
-                {performance_metrics.interviewed_count}
-              </Typography>
-            </Box>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="body2" color="text.secondary">
-                Shortlisted
-              </Typography>
-              <Typography variant="body2">
-                {performance_metrics.shortlisted_count}
-              </Typography>
-            </Box>
-          </Paper>
-
-          {/* Document Status */}
-          <Paper sx={{ p: 2, mb: 3 }}>
-            <Box display="flex" alignItems="center" mb={2}>
-              <DocumentsIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" fontWeight={600}>
-                Document Status
-              </Typography>
-            </Box>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="body2" color="text.secondary">
-                Total Documents
-              </Typography>
-              <Typography variant="body2">
-                {document_status.total_documents}
-              </Typography>
-            </Box>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="body2" color="text.secondary">
-                Pending
-              </Typography>
-              <Typography variant="body2">
-                {document_status.pending}
-              </Typography>
-            </Box>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-              <Typography variant="body2" color="text.secondary">
-                Approved
-              </Typography>
-              <Typography variant="body2">
-                {document_status.approved}
-              </Typography>
-            </Box>
-            {document_status.latest_document && (
-              <Typography variant="caption" color="text.secondary">
-                Latest: {document_status.latest_document}
-              </Typography>
-            )}
-          </Paper>
-
-          {/* Skill Insights */}
-          <Paper sx={{ p: 2 }}>
-            <Box display="flex" alignItems="center" mb={2}>
-              <SkillsIcon sx={{ mr: 1 }} />
-              <Typography variant="h6" fontWeight={600}>
-                Skill Insights
-              </Typography>
-            </Box>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Skill</TableCell>
-                    <TableCell align="right">Candidates</TableCell>
-                    <TableCell align="right">Avg. Proficiency</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {skill_insights.map((skill, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{skill.skill}</TableCell>
-                      <TableCell align="right">{skill.count}</TableCell>
-                      <TableCell align="right">
-                        <Box display="flex" alignItems="center" justifyContent="flex-end">
-                          <Box width="60%" mr={1}>
-                            <LinearProgress
-                              variant="determinate"
-                              value={(skill.avg_proficiency / 3) * 100}
-                              color="success"
-                              sx={{ height: 6, borderRadius: 3 }}
-                            />
-                          </Box>
-                          <Typography variant="body2">
-                            {skill.avg_proficiency.toFixed(1)}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
-  );
+                    {/* Skill Insights */}
+                    <div className="rounded-lg shadow p-4" style={{ backgroundColor: colors.primary[400] }}>
+                        <div className="flex items-center mb-4">
+                            <SkillsIcon style={{ color: colors.grey[300], marginRight: '0.5rem' }} />
+                            <h3 className="text-lg font-semibold" style={{ color: colors.grey[100] }}>
+                                Skill Insights
+                            </h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y" style={{ borderColor: colors.grey[700] }}>
+                                <thead>
+                                    <tr>
+                                        <th className="px-2 py-2 text-left text-xs font-medium uppercase tracking-wider" style={{ color: colors.grey[300] }}>Skill</th>
+                                        <th className="px-2 py-2 text-right text-xs font-medium uppercase tracking-wider" style={{ color: colors.grey[300] }}>Candidates</th>
+                                        <th className="px-2 py-2 text-right text-xs font-medium uppercase tracking-wider" style={{ color: colors.grey[300] }}>Avg. Proficiency</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y" style={{ borderColor: colors.grey[700] }}>
+                                    {skill_insights.map((skill, index) => (
+                                        <tr key={index}>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm" style={{ color: colors.grey[100] }}>{skill.skill}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-right" style={{ color: colors.grey[100] }}>{skill.count}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm" style={{ color: colors.grey[100] }}>
+                                                <div className="flex items-center justify-end">
+                                                    <div className="w-3/5 h-2 rounded-full mr-2" style={{ backgroundColor: colors.grey[700] }}>
+                                                        <div
+                                                            className="h-2 rounded-full"
+                                                            style={{ 
+                                                                width: `${(skill.avg_proficiency / 3) * 100}%`,
+                                                                backgroundColor: colors.greenAccent[500]
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <span>{skill.avg_proficiency.toFixed(1)}</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default RecruiterDashboard;
