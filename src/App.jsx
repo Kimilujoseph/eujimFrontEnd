@@ -12,7 +12,7 @@ import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import RecruitmentPipeline from "./components/employer/recruiterPipeline";
 import SkillSearchComponent from "./components/skillSearch";
 import EmployerProfile from "./scenes/employerProfile/index";
-import Dashboard from "./scenes/dashboard/index";
+import AdminDashboard from "./scenes/dashboard/index";
 import RecruiterDashboard from "./scenes/employerDashboard/dashboard"
 import ProtectedRoute from "./auth/protectedRoute";
 import { AuthProvider } from "./auth/authContext";
@@ -53,7 +53,7 @@ function App() {
                       <Route path="/search/skill" element={<SkillSearchComponent />} />
                       <Route path="/recruitment/pipeline" element={<RecruitmentPipeline />} />
                       <Route path="/recruiter/profile" element={<EmployerProfile />} />
-                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/" element={<AdminDashboard />} />
                       <Route path="/profile" element={<JobSeekerProfile />} />
                       <Route path="/employer-dashboard" element={<RecruiterDashboard />} />
                       <Route
