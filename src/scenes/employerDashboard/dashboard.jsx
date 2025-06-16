@@ -30,7 +30,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/api';
 import { ColorModeContext, tokens } from '../../theme';
-import { useTheme } from '@mui/material';
+//import { useTheme } from '@mui/material';
 
 const RecruiterDashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
