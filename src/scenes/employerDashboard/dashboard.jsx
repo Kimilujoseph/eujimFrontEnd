@@ -1,367 +1,411 @@
 import { useState, useEffect } from 'react';
 import {
-    People as CandidatesIcon,
-    Work as HiredIcon,
-    CalendarToday as InterviewedIcon,
-    HowToReg as ShortlistedIcon,
-    Block as RejectedIcon,
-    AccessTime as ResponseTimeIcon,
-    Description as DocumentsIcon,
-    TrendingUp as ActivityIcon,
-    Code as SkillsIcon,
-    Update as RecentActivityIcon
+  People as CandidatesIcon,
+  Work as HiredIcon,
+  CalendarToday as InterviewedIcon,
+  HowToReg as ShortlistedIcon,
+  Block as RejectedIcon,
+  AccessTime as ResponseTimeIcon,
+  Description as DocumentsIcon,
+  TrendingUp as ActivityIcon,
+  Code as SkillsIcon,
+  Update as RecentActivityIcon,
 } from '@mui/icons-material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Grid,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  LinearProgress,
+  Avatar,
+  useTheme,
+} from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/api';
 
 const RecruiterDashboard = () => {
-    const [dashboardData, setDashboardData] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const theme = useTheme();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const response = await api.get('/recruiter/profile/dashboard/');
-                setDashboardData(response.data.data);
-            } catch (err) {
-                console.error('Failed to fetch dashboard data:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDashboardData();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-[80vh]">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-            </div>
-        );
-    }
-
-    if (!dashboardData) {
-        return (
-            <div className="flex justify-center items-center h-[80vh]">
-                <h2 className="text-xl font-semibold">Failed to load dashboard data</h2>
-            </div>
-        );
-    }
-
-    const {
-        recruitment_overview,
-        performance_metrics,
-        document_status,
-        recent_activities,
-        skill_insights
-    } = dashboardData;
-
-    // Prepare data for the weekly activity chart
-    const weeklyActivityData = performance_metrics.weekly_activity.map(item => ({
-        day: new Date(item.day).toLocaleDateString('en-US', { weekday: 'short' }),
-        actions: item.actions
-    }));
-
-    // Status colors
-    const statusColors = {
-        hired: 'bg-green-500',
-        interviewed: 'bg-yellow-500',
-        shortlisted: 'bg-blue-500',
-        rejected: 'bg-red-500'
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.get('/recruiter/profile/dashboard/');
+        setDashboardData(response.data.data);
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchDashboardData();
+  }, []);
 
-    const textColors = {
-        hired: 'text-green-500',
-        interviewed: 'text-yellow-500',
-        shortlisted: 'text-blue-500',
-        rejected: 'text-red-500'
-    };
-
+  if (loading) {
     return (
-        <div className="p-5 w-full max-w-full overflow-x-hidden">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-                Recruiter Dashboard
-            </h1>
-
-            {/* Overview Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 w-full">
-                {/* Total Candidates */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Total Candidates</h3>
-                            <p className="text-3xl font-semibold text-gray-800 dark:text-gray-100">
-                                {recruitment_overview.total_candidates}
-                            </p>
-                        </div>
-                        <div className={`p-3 rounded-full bg-blue-100 dark:bg-blue-900`}>
-                            <CandidatesIcon className="text-blue-500 dark:text-blue-300" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Hired */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Hired</h3>
-                            <p className={`text-3xl font-semibold ${textColors.hired}`}>
-                                {recruitment_overview.hired}
-                            </p>
-                        </div>
-                        <div className={`p-3 rounded-full bg-green-100 dark:bg-green-900`}>
-                            <HiredIcon className="text-green-500 dark:text-green-300" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Interviewed */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Interviewed</h3>
-                            <p className={`text-3xl font-semibold ${textColors.interviewed}`}>
-                                {recruitment_overview.interviewed}
-                            </p>
-                        </div>
-                        <div className={`p-3 rounded-full bg-yellow-100 dark:bg-yellow-900`}>
-                            <InterviewedIcon className="text-yellow-500 dark:text-yellow-300" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Shortlisted */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Shortlisted</h3>
-                            <p className={`text-3xl font-semibold ${textColors.shortlisted}`}>
-                                {recruitment_overview.shortlisted}
-                            </p>
-                        </div>
-                        <div className={`p-3 rounded-full bg-blue-100 dark:bg-blue-900`}>
-                            <ShortlistedIcon className="text-blue-500 dark:text-blue-300" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Rejected */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300">Rejected</h3>
-                            <p className={`text-3xl font-semibold ${textColors.rejected}`}>
-                                {recruitment_overview.rejected}
-                            </p>
-                        </div>
-                        <div className={`p-3 rounded-full bg-red-100 dark:bg-red-900`}>
-                            <RejectedIcon className="text-red-500 dark:text-red-300" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column - 2/3 width */}
-                <div className="md:col-span-2 space-y-6">
-                    {/* Weekly Activity Chart */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                            Weekly Activity
-                        </h3>
-                        <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={weeklyActivityData}>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300 dark:stroke-gray-600" />
-                                    <XAxis
-                                        dataKey="day"
-                                        className="text-xs fill-gray-500 dark:fill-gray-400"
-                                    />
-                                    <YAxis className="text-xs fill-gray-500 dark:fill-gray-400" />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'rgb(255 255 255 / var(--tw-bg-opacity))',
-                                            borderColor: 'rgb(229 231 235 / var(--tw-border-opacity))',
-                                            borderRadius: '0.5rem',
-                                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                                            color: 'rgb(17 24 39 / var(--tw-text-opacity))'
-                                        }}
-                                        itemStyle={{
-                                            color: 'rgb(17 24 39 / var(--tw-text-opacity))'
-                                        }}
-                                        labelStyle={{
-                                            color: 'rgb(17 24 39 / var(--tw-text-opacity))',
-                                            fontWeight: '600'
-                                        }}
-                                    />
-                                    <Bar
-                                        dataKey="actions"
-                                        fill="#4ade80"
-                                        radius={[4, 4, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    {/* Recent Activities */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                        <div className="p-4 flex items-center border-b border-gray-200 dark:border-gray-700">
-                            <RecentActivityIcon className="text-gray-700 dark:text-gray-300 mr-2" />
-                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                                Recent Activities
-                            </h3>
-                        </div>
-                        <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                            {recent_activities.map((activity, index) => (
-                                <div key={index} className="p-4">
-                                    <div className="flex items-start">
-                                        <div className={`flex-shrink-0 h-10 w-10 rounded-full ${statusColors[activity.status]} flex items-center justify-center text-white`}>
-                                            {activity.job_seeker__user__firstName?.charAt(0)}
-                                            {activity.job_seeker__user__lastName?.charAt(0)}
-                                        </div>
-                                        <div className="ml-4">
-                                            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                {activity.job_seeker__user__firstName} {activity.job_seeker__user__lastName}
-                                            </h4>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                {new Date(activity.updatedAt).toLocaleString()}
-                                            </p>
-                                            <div className="flex items-center mt-2">
-                                                <span className={`px-2 py-1 text-xs rounded-full ${statusColors[activity.status]} text-white`}>
-                                                    {activity.status}
-                                                </span>
-                                                {activity.notes && (
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                                                        {activity.notes}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Column - 1/3 width */}
-                <div className="space-y-6">
-                    {/* Performance Metrics */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-                            Performance Metrics
-                        </h3>
-                        <div className="mb-6">
-                            <div className="flex justify-between items-center mb-1">
-                                <span className="text-sm text-gray-500 dark:text-gray-400">Avg. Response Time</span>
-                                <div className="flex items-center">
-                                    <ResponseTimeIcon className="text-gray-500 dark:text-gray-400 text-sm mr-1" />
-                                    <span className="text-sm text-gray-800 dark:text-gray-200">
-                                        {Math.round(parseFloat(performance_metrics.avg_time_to_respond) / 3600)} hours
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div
-                                    className="bg-green-500 h-2 rounded-full"
-                                    style={{ width: `${Math.min(100, parseFloat(performance_metrics.avg_time_to_respond) / 100)}%` }}
-                                ></div>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Interviewed</span>
-                            <span className="text-sm text-gray-800 dark:text-gray-200">
-                                {performance_metrics.interviewed_count}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Shortlisted</span>
-                            <span className="text-sm text-gray-800 dark:text-gray-200">
-                                {performance_metrics.shortlisted_count}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Document Status */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <div className="flex items-center mb-4">
-                            <DocumentsIcon className="text-gray-700 dark:text-gray-300 mr-2" />
-                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                                Document Status
-                            </h3>
-                        </div>
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Total Documents</span>
-                            <span className="text-sm text-gray-800 dark:text-gray-200">
-                                {document_status.total_documents}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Pending</span>
-                            <span className="text-sm text-gray-800 dark:text-gray-200">
-                                {document_status.pending}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Approved</span>
-                            <span className="text-sm text-gray-800 dark:text-gray-200">
-                                {document_status.approved}
-                            </span>
-                        </div>
-                        {document_status.latest_document && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Latest: {document_status.latest_document}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Skill Insights */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                        <div className="flex items-center mb-4">
-                            <SkillsIcon className="text-gray-700 dark:text-gray-300 mr-2" />
-                            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                                Skill Insights
-                            </h3>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead>
-                                    <tr>
-                                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Skill</th>
-                                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Candidates</th>
-                                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Avg. Proficiency</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                    {skill_insights.map((skill, index) => (
-                                        <tr key={index}>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">{skill.skill}</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200 text-right">{skill.count}</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-200">
-                                                <div className="flex items-center justify-end">
-                                                    <div className="w-3/5 h-2 bg-gray-200 dark:bg-gray-700 rounded-full mr-2">
-                                                        <div
-                                                            className="h-2 bg-green-500 rounded-full"
-                                                            style={{ width: `${(skill.avg_proficiency / 3) * 100}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <span>{skill.avg_proficiency.toFixed(1)}</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+        <CircularProgress color="secondary" />
+      </Box>
     );
+  }
+
+  if (!dashboardData) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+        <Typography variant="h6">Failed to load dashboard data</Typography>
+      </Box>
+    );
+  }
+
+  const {
+    recruitment_overview,
+    performance_metrics,
+    document_status,
+    recent_activities,
+    skill_insights,
+  } = dashboardData;
+
+  const weeklyActivityData = performance_metrics.weekly_activity.map((item) => ({
+    day: new Date(item.day).toLocaleDateString('en-US', { weekday: 'short' }),
+    actions: item.actions,
+  }));
+
+  const statusColors = {
+    hired: 'success.main',
+    interviewed: 'warning.main',
+    shortlisted: 'info.main',
+    rejected: 'error.main',
+  };
+
+  const statusBgColors = {
+    hired: 'success.light',
+    interviewed: 'warning.light',
+    shortlisted: 'info.light',
+    rejected: 'error.light',
+  };
+
+  return (
+    <Box sx={{ p: 3, width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
+      <Typography variant="h4" fontWeight={700} mb={3}>
+        Recruiter Dashboard
+      </Typography>
+
+      {/* Overview Cards */}
+      <Grid container spacing={2} mb={3}>
+        {/* Total Candidates */}
+        <Grid item xs={12} sm={6} md={4} lg={2.4}>
+          <Paper sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Total Candidates
+                </Typography>
+                <Typography variant="h4" fontWeight={600}>
+                  {recruitment_overview.total_candidates}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: 'primary.light' }}>
+                <CandidatesIcon color="primary" />
+              </Box>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Hired */}
+        <Grid item xs={12} sm={6} md={4} lg={2.4}>
+          <Paper sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Hired
+                </Typography>
+                <Typography variant="h4" fontWeight={600} color={statusColors.hired}>
+                  {recruitment_overview.hired}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.hired }}>
+                <HiredIcon color="success" />
+              </Box>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Interviewed */}
+        <Grid item xs={12} sm={6} md={4} lg={2.4}>
+          <Paper sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Interviewed
+                </Typography>
+                <Typography variant="h4" fontWeight={600} color={statusColors.interviewed}>
+                  {recruitment_overview.interviewed}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.interviewed }}>
+                <InterviewedIcon color="warning" />
+              </Box>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Shortlisted */}
+        <Grid item xs={12} sm={6} md={4} lg={2.4}>
+          <Paper sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Shortlisted
+                </Typography>
+                <Typography variant="h4" fontWeight={600} color={statusColors.shortlisted}>
+                  {recruitment_overview.shortlisted}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.shortlisted }}>
+                <ShortlistedIcon color="info" />
+              </Box>
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Rejected */}
+        <Grid item xs={12} sm={6} md={4} lg={2.4}>
+          <Paper sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Rejected
+                </Typography>
+                <Typography variant="h4" fontWeight={600} color={statusColors.rejected}>
+                  {recruitment_overview.rejected}
+                </Typography>
+              </Box>
+              <Box sx={{ p: 1.5, borderRadius: '50%', bgcolor: statusBgColors.rejected }}>
+                <RejectedIcon color="error" />
+              </Box>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Main Content */}
+      <Grid container spacing={3}>
+        {/* Left Column - 2/3 width */}
+        <Grid item xs={12} md={8}>
+          {/* Weekly Activity Chart */}
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Typography variant="h6" fontWeight={600} mb={2}>
+              Weekly Activity
+            </Typography>
+            <Box height={300}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyActivityData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="actions" fill="#4ade80" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
+          </Paper>
+
+          {/* Recent Activities */}
+          <Paper sx={{ overflow: 'hidden' }}>
+            <Box p={2} display="flex" alignItems="center" borderBottom="1px solid" borderColor="divider">
+              <RecentActivityIcon sx={{ mr: 1 }} />
+              <Typography variant="h6" fontWeight={600}>
+                Recent Activities
+              </Typography>
+            </Box>
+            <Box>
+              {recent_activities.map((activity, index) => (
+                <Box
+                  key={index}
+                  p={2}
+                  borderBottom={index < recent_activities.length - 1 ? '1px solid' : 'none'}
+                  borderColor="divider"
+                >
+                  <Box display="flex" alignItems="flex-start">
+                    <Avatar sx={{ bgcolor: statusColors[activity.status] }}>
+                      {activity.job_seeker__user__firstName?.charAt(0)}
+                      {activity.job_seeker__user__lastName?.charAt(0)}
+                    </Avatar>
+                    <Box ml={2}>
+                      <Typography variant="subtitle2" fontWeight={600}>
+                        {activity.job_seeker__user__firstName} {activity.job_seeker__user__lastName}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(activity.updatedAt).toLocaleString()}
+                      </Typography>
+                      <Box display="flex" alignItems="center" mt={1}>
+                        <Box
+                          sx={{
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 4,
+                            bgcolor: statusColors[activity.status],
+                            color: 'white',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {activity.status}
+                        </Box>
+                        {activity.notes && (
+                          <Typography variant="caption" color="text.secondary" ml={1}>
+                            {activity.notes}
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Right Column - 1/3 width */}
+        <Grid item xs={12} md={4}>
+          {/* Performance Metrics */}
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Typography variant="h6" fontWeight={600} mb={2}>
+              Performance Metrics
+            </Typography>
+            <Box mb={3}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                <Typography variant="body2" color="text.secondary">
+                  Avg. Response Time
+                </Typography>
+                <Box display="flex" alignItems="center">
+                  <ResponseTimeIcon fontSize="small" sx={{ mr: 0.5 }} />
+                  <Typography variant="body2">
+                    {Math.round(parseFloat(performance_metrics.avg_time_to_respond) / 3600)} hours
+                  </Typography>
+                </Box>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={Math.min(100, parseFloat(performance_metrics.avg_time_to_respond) / 100)}
+                color="success"
+                sx={{ height: 8, borderRadius: 4 }}
+              />
+            </Box>
+
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="body2" color="text.secondary">
+                Interviewed
+              </Typography>
+              <Typography variant="body2">
+                {performance_metrics.interviewed_count}
+              </Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="body2" color="text.secondary">
+                Shortlisted
+              </Typography>
+              <Typography variant="body2">
+                {performance_metrics.shortlisted_count}
+              </Typography>
+            </Box>
+          </Paper>
+
+          {/* Document Status */}
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Box display="flex" alignItems="center" mb={2}>
+              <DocumentsIcon sx={{ mr: 1 }} />
+              <Typography variant="h6" fontWeight={600}>
+                Document Status
+              </Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="body2" color="text.secondary">
+                Total Documents
+              </Typography>
+              <Typography variant="body2">
+                {document_status.total_documents}
+              </Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="body2" color="text.secondary">
+                Pending
+              </Typography>
+              <Typography variant="body2">
+                {document_status.pending}
+              </Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="body2" color="text.secondary">
+                Approved
+              </Typography>
+              <Typography variant="body2">
+                {document_status.approved}
+              </Typography>
+            </Box>
+            {document_status.latest_document && (
+              <Typography variant="caption" color="text.secondary">
+                Latest: {document_status.latest_document}
+              </Typography>
+            )}
+          </Paper>
+
+          {/* Skill Insights */}
+          <Paper sx={{ p: 2 }}>
+            <Box display="flex" alignItems="center" mb={2}>
+              <SkillsIcon sx={{ mr: 1 }} />
+              <Typography variant="h6" fontWeight={600}>
+                Skill Insights
+              </Typography>
+            </Box>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Skill</TableCell>
+                    <TableCell align="right">Candidates</TableCell>
+                    <TableCell align="right">Avg. Proficiency</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {skill_insights.map((skill, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{skill.skill}</TableCell>
+                      <TableCell align="right">{skill.count}</TableCell>
+                      <TableCell align="right">
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Box width="60%" mr={1}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={(skill.avg_proficiency / 3) * 100}
+                              color="success"
+                              sx={{ height: 6, borderRadius: 3 }}
+                            />
+                          </Box>
+                          <Typography variant="body2">
+                            {skill.avg_proficiency.toFixed(1)}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Box>
+  );
 };
 
 export default RecruiterDashboard;
