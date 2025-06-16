@@ -3,14 +3,18 @@ import {
     Button,
     LinearProgress,
     Snackbar,
-    Alert
+    Alert,
+    useTheme
 } from "@mui/material";
+import { tokens } from "../../theme";
 import api from "../../api/api";
 import { CloudUpload, Delete, Download, Close } from "@mui/icons-material";
 import Dropzone from "react-dropzone";
 import { useAuth } from "../../auth/authContext";
 
 export const DocumentsManager = ({ recruiterId, onClose }) => {
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
     const [documents, setDocuments] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -107,21 +111,47 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
     };
 
     return (
-        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-w-3xl mx-auto">
+        <div style={{
+            backgroundColor: colors.primary[400],
+            border: `1px solid ${colors.grey[700]}`,
+            borderRadius: '8px',
+            maxWidth: '800px',
+            margin: '0 auto',
+            position: 'relative'
+        }}>
             {/* Header with close button */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '16px',
+                borderBottom: `1px solid ${colors.grey[700]}`
+            }}>
+                <h2 style={{
+                    margin: 0,
+                    fontSize: '1.25rem',
+                    fontWeight: 600,
+                    color: colors.grey[100]
+                }}>
                     {user?.role === 'admin' ? 'Manage Company Documents' : 'Company Documents'}
                 </h2>
                 <button
                     onClick={onClose}
-                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        color: colors.grey[300],
+                        cursor: 'pointer',
+                        '&:hover': {
+                            color: colors.grey[100]
+                        }
+                    }}
                 >
                     <Close />
                 </button>
             </div>
 
-            <div className="p-4">
+            <div style={{ padding: '16px' }}>
                 {loading ? (
                     <LinearProgress />
                 ) : (
@@ -140,68 +170,139 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
                             {({ getRootProps, getInputProps }) => (
                                 <div
                                     {...getRootProps()}
-                                    className={`p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-center bg-gray-50 dark:bg-gray-700 cursor-pointer transition-colors ${uploading ? 'opacity-70' : 'hover:border-green-500'
-                                        }`}
+                                    style={{
+                                        padding: '24px',
+                                        border: `2px dashed ${colors.grey[600]}`,
+                                        borderRadius: '4px',
+                                        textAlign: 'center',
+                                        backgroundColor: colors.primary[500],
+                                        cursor: uploading ? 'not-allowed' : 'pointer',
+                                        transition: 'border-color 0.3s ease',
+                                        opacity: uploading ? 0.7 : 1,
+                                        '&:hover': {
+                                            borderColor: colors.greenAccent[500]
+                                        }
+                                    }}
                                 >
                                     <input {...getInputProps()} />
-                                    <CloudUpload className="text-4xl text-gray-400 dark:text-gray-300 mb-2 mx-auto" />
-                                    <p className="text-gray-700 dark:text-gray-200">
+                                    <CloudUpload style={{
+                                        fontSize: '2.5rem',
+                                        color: colors.grey[300],
+                                        marginBottom: '8px'
+                                    }} />
+                                    <p style={{ color: colors.grey[100], margin: 0 }}>
                                         Drag & drop files here, or click to select
                                     </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    <p style={{
+                                        fontSize: '0.875rem',
+                                        color: colors.grey[300],
+                                        marginTop: '4px',
+                                        marginBottom: 0
+                                    }}>
                                         (Accepted: images, PDFs, Word docs, max 5 files)
                                     </p>
                                     {uploading && (
-                                        <LinearProgress className="mt-3" />
+                                        <LinearProgress style={{ marginTop: '12px' }} />
                                     )}
                                 </div>
                             )}
                         </Dropzone>
 
-                        <div className="mt-4">
+                        <div style={{ marginTop: '16px' }}>
                             {documents.length === 0 ? (
-                                <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                <p style={{
+                                    textAlign: 'center',
+                                    padding: '16px 0',
+                                    color: colors.grey[300]
+                                }}>
                                     No documents uploaded yet
                                 </p>
                             ) : (
-                                <ul className="space-y-2">
+                                <ul style={{
+                                    listStyle: 'none',
+                                    padding: 0,
+                                    margin: 0,
+                                    '& > li + li': {
+                                        marginTop: '8px'
+                                    }
+                                }}>
                                     {documents.map((doc) => (
                                         <li
                                             key={doc.id || doc.upload_path}
-                                            className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex justify-between items-center"
+                                            style={{
+                                                backgroundColor: colors.primary[500],
+                                                padding: '12px',
+                                                borderRadius: '4px',
+                                                transition: 'background-color 0.3s ease',
+                                                '&:hover': {
+                                                    backgroundColor: colors.primary[600]
+                                                },
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
+                                            }}
                                         >
-                                            <div className="min-w-0">
-                                                <p className="text-gray-800 dark:text-gray-100 font-medium truncate">
+                                            <div style={{ minWidth: 0 }}>
+                                                <p style={{
+                                                    margin: 0,
+                                                    color: colors.grey[100],
+                                                    fontWeight: 500,
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis'
+                                                }}>
                                                     {getFileName(doc.upload_path)}
                                                 </p>
-                                                <div className="flex flex-wrap gap-x-4 text-sm text-gray-500 dark:text-gray-400">
+                                                <div style={{
+                                                    display: 'flex',
+                                                    flexWrap: 'wrap',
+                                                    gap: '0 16px',
+                                                    fontSize: '0.875rem',
+                                                    color: colors.grey[300]
+                                                }}>
                                                     <span>
                                                         {doc.createdAt && new Date(doc.createdAt).toLocaleDateString()}
                                                     </span>
                                                     <span>{doc.doc_type}</span>
-                                                    <span className={`${doc.status === 'approved' ? 'text-green-500' :
-                                                            doc.status === 'rejected' ? 'text-red-500' :
-                                                                'text-yellow-500'
-                                                        }`}>
+                                                    <span style={{
+                                                        color: doc.status === 'approved' ? colors.greenAccent[500] :
+                                                            doc.status === 'rejected' ? colors.redAccent[500] :
+                                                            colors.yellowAccent[500]
+                                                    }}>
                                                         {doc.status}
                                                     </span>
                                                 </div>
                                             </div>
 
-                                            <div className="flex space-x-2">
+                                            <div style={{ display: 'flex', gap: '8px' }}>
                                                 <a
                                                     href={user?.role === 'admin'
                                                         ? `/admin/documents/${doc.id}/download`
                                                         : `/recruiter/documents/${doc.id}/download/`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-green-500 hover:text-green-700 dark:hover:text-green-400 p-1"
+                                                    style={{
+                                                        color: colors.greenAccent[500],
+                                                        padding: '4px',
+                                                        '&:hover': {
+                                                            color: colors.greenAccent[400]
+                                                        }
+                                                    }}
                                                 >
                                                     <Download />
                                                 </a>
                                                 <button
                                                     onClick={() => handleDelete(doc.id)}
-                                                    className="text-red-500 hover:text-red-700 dark:hover:text-red-400 p-1"
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        color: colors.redAccent[500],
+                                                        padding: '4px',
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            color: colors.redAccent[400]
+                                                        }
+                                                    }}
                                                 >
                                                     <Delete />
                                                 </button>
@@ -217,16 +318,44 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
 
             {/* Status actions for admin */}
             {user?.role === 'admin' && documents.length > 0 && (
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+                <div style={{
+                    padding: '16px',
+                    borderTop: `1px solid ${colors.grey[700]}`,
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '12px'
+                }}>
                     <button
                         onClick={() => handleBulkStatusUpdate('approved')}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: colors.greenAccent[600],
+                            color: colors.grey[900],
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '0.875rem',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                backgroundColor: colors.greenAccent[700]
+                            }
+                        }}
                     >
                         Approve All
                     </button>
                     <button
                         onClick={() => handleBulkStatusUpdate('rejected')}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm"
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: colors.redAccent[600],
+                            color: colors.grey[100],
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '0.875rem',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                backgroundColor: colors.redAccent[700]
+                            }
+                        }}
                     >
                         Reject All
                     </button>
@@ -242,7 +371,13 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
                 <Alert
                     severity={snackbar.severity}
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-                    className="w-full"
+                    style={{
+                        width: '100%',
+                        backgroundColor: snackbar.severity === 'error' ? colors.redAccent[600] : 
+                                        snackbar.severity === 'success' ? colors.greenAccent[600] : 
+                                        colors.blueAccent[600],
+                        color: colors.grey[100]
+                    }}
                 >
                     {snackbar.message}
                 </Alert>

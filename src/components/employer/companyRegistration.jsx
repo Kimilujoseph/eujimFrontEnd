@@ -39,7 +39,6 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
     severity: 'info'
   });
 
-  // Initialize form with initialData if it exists
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -111,17 +110,33 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
       margin: '0 auto',
       p: 3,
       backgroundColor: colors.primary[400],
-      borderRadius: '4px'
+      borderRadius: '4px',
+      border: `1px solid ${colors.grey[700]}`
     }}>
       <Stepper activeStep={0} orientation="vertical">
         <Step>
-          <StepLabel sx={{ color: colors.grey[100] }}>
+          <StepLabel sx={{ 
+            color: colors.grey[100],
+            '& .MuiStepIcon-root': {
+              color: colors.grey[700],
+              '&.Mui-completed': {
+                color: colors.greenAccent[500]
+              },
+              '&.Mui-active': {
+                color: colors.blueAccent[500]
+              }
+            }
+          }}>
             {isUpdate ? 'Update Company Information' : 'Company Information'}
           </StepLabel>
           <StepContent>
             <form onSubmit={handleSubmit}>
               {errors.non_field_errors && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{ 
+                  mb: 2,
+                  backgroundColor: colors.redAccent[800],
+                  color: colors.grey[100]
+                }}>
                   {errors.non_field_errors}
                 </Alert>
               )}
@@ -139,6 +154,9 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                   mb: 2,
                   '& .MuiFilledInput-root': {
                     backgroundColor: colors.primary[500],
+                    '&:hover': {
+                      backgroundColor: colors.primary[600]
+                    }
                   },
                   '& .MuiInputLabel-root': {
                     color: colors.grey[300],
@@ -166,6 +184,9 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                   mb: 2,
                   '& .MuiFilledInput-root': {
                     backgroundColor: colors.primary[500],
+                    '&:hover': {
+                      backgroundColor: colors.primary[600]
+                    }
                   },
                   '& .MuiInputLabel-root': {
                     color: colors.grey[300],
@@ -190,6 +211,9 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                   mb: 2,
                   '& .MuiFilledInput-root': {
                     backgroundColor: colors.primary[500],
+                    '&:hover': {
+                      backgroundColor: colors.primary[600]
+                    }
                   },
                   '& .MuiInputLabel-root': {
                     color: colors.grey[300],
@@ -215,6 +239,9 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                   mb: 2,
                   '& .MuiFilledInput-root': {
                     backgroundColor: colors.primary[500],
+                    '&:hover': {
+                      backgroundColor: colors.primary[600]
+                    }
                   },
                   '& .MuiInputLabel-root': {
                     color: colors.grey[300],
@@ -241,6 +268,9 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                   mb: 3,
                   '& .MuiFilledInput-root': {
                     backgroundColor: colors.primary[500],
+                    '&:hover': {
+                      backgroundColor: colors.primary[600]
+                    }
                   },
                   '& .MuiInputLabel-root': {
                     color: colors.grey[300],
@@ -250,7 +280,6 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                   }
                 }}
               />
-
 
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Button
@@ -262,6 +291,7 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
                     borderColor: colors.grey[700],
                     '&:hover': {
                       borderColor: colors.grey[600],
+                      backgroundColor: colors.primary[500]
                     }
                   }}
                 >
@@ -305,7 +335,13 @@ export const CompanyRegistration = ({ initialData, onComplete, onCancel, isUpdat
       >
         <Alert
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%',
+            backgroundColor: snackbar.severity === 'error' ? colors.redAccent[600] : 
+                            snackbar.severity === 'success' ? colors.greenAccent[600] : 
+                            colors.blueAccent[600],
+            color: colors.grey[100]
+          }}
           onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
         >
           {snackbar.message}
