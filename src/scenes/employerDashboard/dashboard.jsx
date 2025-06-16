@@ -1,31 +1,31 @@
 import { useState, useEffect, useContext } from 'react';
 import {
-  People as CandidatesIcon,
-  Work as HiredIcon,
-  CalendarToday as InterviewedIcon,
-  HowToReg as ShortlistedIcon,
-  Block as RejectedIcon,
-  AccessTime as ResponseTimeIcon,
-  Description as DocumentsIcon,
-  TrendingUp as ActivityIcon,
-  Code as SkillsIcon,
-  Update as RecentActivityIcon,
+    People as CandidatesIcon,
+    Work as HiredIcon,
+    CalendarToday as InterviewedIcon,
+    HowToReg as ShortlistedIcon,
+    Block as RejectedIcon,
+    AccessTime as ResponseTimeIcon,
+    Description as DocumentsIcon,
+    TrendingUp as ActivityIcon,
+    Code as SkillsIcon,
+    Update as RecentActivityIcon,
 } from '@mui/icons-material';
 import {
-  Box,
-  Paper,
-  Typography,
-  Grid,
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  LinearProgress,
-  Avatar,
-  useTheme,
+    Box,
+    Paper,
+    Typography,
+    Grid,
+    CircularProgress,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    LinearProgress,
+    Avatar,
+    useTheme,
 } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/api';
@@ -39,48 +39,48 @@ const RecruiterDashboard = () => {
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await api.get('/recruiter/profile/dashboard/');
-        setDashboardData(response.data.data);
-      } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
-  }, []);
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const response = await api.get('/recruiter/profile/dashboard/');
+                setDashboardData(response.data.data);
+            } catch (err) {
+                console.error('Failed to fetch dashboard data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDashboardData();
+    }, []);
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-        <CircularProgress color="secondary" />
-      </Box>
-    );
-  }
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                <CircularProgress color="secondary" />
+            </Box>
+        );
+    }
 
-  if (!dashboardData) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-        <Typography variant="h6">Failed to load dashboard data</Typography>
-      </Box>
-    );
-  }
+    if (!dashboardData) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                <Typography variant="h6">Failed to load dashboard data</Typography>
+            </Box>
+        );
+    }
 
-  const {
-    recruitment_overview,
-    performance_metrics,
-    document_status,
-    recent_activities,
-    skill_insights,
-  } = dashboardData;
+    const {
+        recruitment_overview,
+        performance_metrics,
+        document_status,
+        recent_activities,
+        skill_insights,
+    } = dashboardData;
 
-  const weeklyActivityData = performance_metrics.weekly_activity.map((item) => ({
-    day: new Date(item.day).toLocaleDateString('en-US', { weekday: 'short' }),
-    actions: item.actions,
-  }));
+    const weeklyActivityData = performance_metrics.weekly_activity.map((item) => ({
+        day: new Date(item.day).toLocaleDateString('en-US', { weekday: 'short' }),
+        actions: item.actions,
+    }));
 
     // Status colors
     const statusColors = {
@@ -229,7 +229,7 @@ const RecruiterDashboard = () => {
                             {recent_activities.map((activity, index) => (
                                 <div key={index} className="p-4">
                                     <div className="flex items-start">
-                                        <div 
+                                        <div
                                             className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-white"
                                             style={{ backgroundColor: statusColors[activity.status] }}
                                         >
@@ -244,7 +244,7 @@ const RecruiterDashboard = () => {
                                                 {new Date(activity.updatedAt).toLocaleString()}
                                             </p>
                                             <div className="flex items-center mt-2">
-                                                <span 
+                                                <span
                                                     className="px-2 py-1 text-xs rounded-full text-white"
                                                     style={{ backgroundColor: statusColors[activity.status] }}
                                                 >
@@ -284,7 +284,7 @@ const RecruiterDashboard = () => {
                             <div className="w-full rounded-full h-2" style={{ backgroundColor: colors.grey[700] }}>
                                 <div
                                     className="h-2 rounded-full"
-                                    style={{ 
+                                    style={{
                                         width: `${Math.min(100, parseFloat(performance_metrics.avg_time_to_respond) / 100)}%`,
                                         backgroundColor: colors.greenAccent[500]
                                     }}
@@ -366,7 +366,7 @@ const RecruiterDashboard = () => {
                                                     <div className="w-3/5 h-2 rounded-full mr-2" style={{ backgroundColor: colors.grey[700] }}>
                                                         <div
                                                             className="h-2 rounded-full"
-                                                            style={{ 
+                                                            style={{
                                                                 width: `${(skill.avg_proficiency / 3) * 100}%`,
                                                                 backgroundColor: colors.greenAccent[500]
                                                             }}

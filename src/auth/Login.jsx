@@ -43,6 +43,8 @@ const Login = () => {
         navigate("/");
       } else if (res.data.user.role === "employer") {
         navigate("/employer-dashboard");
+      } else {
+        navigate("/job-seeker-dashboard/")
       }
     } catch (err) {
       console.log(err);
