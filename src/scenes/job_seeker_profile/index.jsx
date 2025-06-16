@@ -7,6 +7,10 @@ import {
   Typography,
   Snackbar,
   Alert,
+  Button,
+  Modal,
+  TextField,
+  CircularProgress
 } from "@mui/material";
 import ProfileHeader from "../../components/profile/ProfileHeader";
 import BasicInfoSection from "../../components/profile/BasicInfoSection";
@@ -45,12 +49,22 @@ const JobSeekerProfile = () => {
     description: "",
     school_logo: "",
   });
+  const [profileNotFound, setProfileNotFound] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [modalForm, setModalForm] = useState({
+    linkedin_url: "",
+    github_url: "",
+    about: "",
+    location: ""
+  });
 
   // Fetch profile data
   const fetchProfileData = async () => {
     try {
       const response = await api.get("/graduate/profile");
       setProfileData(response.data);
+      setProfileNotFound(false);
       setFormData({
         firstName: response.data.profile.firstName,
         secondName: response.data.profile.secondName,
@@ -62,8 +76,12 @@ const JobSeekerProfile = () => {
         github_url: response.data.profile.github_url,
       });
     } catch (error) {
-      showSnackbar("Error fetching profile data", "error");
-      console.error("Error fetching profile data:", error);
+      if (error.response?.status === 404) {
+        setProfileNotFound(true);
+      } else {
+        showSnackbar("Error fetching profile data", "error");
+        console.error("Error fetching profile data:", error);
+      }
     }
   };
 
@@ -83,7 +101,12 @@ const JobSeekerProfile = () => {
     setActiveTab(newValue);
   };
 
-  // Profile CRUD Operations
+  // Handle modal input changes
+  const handleModalInputChange = (e) => {
+    const { name, value } = e.target;
+    setModalForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     try {
@@ -94,6 +117,34 @@ const JobSeekerProfile = () => {
     } catch (error) {
       showSnackbar("Error updating profile", "error");
       console.error("Error updating profile:", error);
+    }
+  };
+
+  // Create new profile
+  const handleCreateProfile = async () => {
+    setIsCreating(true);
+    try {
+      const dataToSend = {
+        location: modalForm.location,
+        linkedin_url: modalForm.linkedin_url,
+        github_url: modalForm.github_url,
+        about: modalForm.about,
+      };
+
+      await api.post("/graduate/profile/create-or-update", dataToSend);
+      showSnackbar("Profile created successfully");
+      setCreateModalOpen(false);
+
+      await api.post("/graduate/profile/create-or-update", dataToSend);
+      showSnackbar("Profile created successfully");
+      setCreateModalOpen(false);
+      // Reload profile data
+      await fetchProfileData();
+    } catch (error) {
+      showSnackbar("Error creating profile", "error");
+      console.error("Error creating profile:", error);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -182,7 +233,108 @@ const JobSeekerProfile = () => {
     }
   };
 
- if (!profileData) {
+  if (profileNotFound) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen p-4">
+        <Card className="w-full max-w-md p-6 text-center">
+          <Typography variant="h5" gutterBottom>
+            Profile Not Found
+          </Typography>
+          <Typography variant="body1" className="mb-6">
+            It looks like you don't have a profile yet. Create one now to get started!
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setCreateModalOpen(true)}
+            className="w-full"
+          >
+            Create Profile
+          </Button>
+        </Card>
+
+        {/* Create Profile Modal */}
+        <Modal
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          aria-labelledby="create-profile-modal"
+        >
+          <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 focus:outline-none">
+            <Typography variant="h6" id="modal-title" className="mb-4">
+              Create Your Profile
+            </Typography>
+
+            <TextField
+              fullWidth
+              label="GitHub URL"
+              name="github_url"
+              value={modalForm.github_url}
+              onChange={handleModalInputChange}
+              margin="normal"
+              placeholder="https://github.com/yourusername"
+            />
+
+            <TextField
+              fullWidth
+              label="LinkedIn URL"
+              name="linkedin_url"
+              value={modalForm.linkedin_url}
+              onChange={handleModalInputChange}
+              margin="normal"
+              placeholder="https://linkedin.com/in/yourprofile"
+            />
+            <TextField
+              fullWidth
+              label="Location"
+              name="github_url"
+              value={modalForm.location}
+              onChange={handleModalInputChange}
+              margin="normal"
+              placeholder="you current location"
+            />
+
+            <TextField
+              fullWidth
+              label="About You"
+              name="about"
+              value={modalForm.about}
+              onChange={handleModalInputChange}
+              margin="normal"
+              multiline
+              rows={4}
+              placeholder="Brief introduction about yourself..."
+            />
+
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <Button
+                variant="outlined"
+                onClick={() => setCreateModalOpen(false)}
+                disabled={isCreating}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleCreateProfile}
+                disabled={isCreating}
+              >
+                {isCreating ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Create Profile"
+                )}
+              </Button>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
+
+
+  if (!profileData) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-lg text-gray-600">Loading profile data...</div>
@@ -191,8 +343,8 @@ const JobSeekerProfile = () => {
   }
 
   return (
-    <form 
-      onSubmit={handleSaveProfile} 
+    <form
+      onSubmit={handleSaveProfile}
       className="w-full max-w-6xl mx-auto px-4 py-6"
     >
       <ProfileHeader
@@ -260,8 +412,8 @@ const JobSeekerProfile = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           className="shadow-lg"
         >
