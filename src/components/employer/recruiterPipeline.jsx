@@ -78,6 +78,7 @@ const RecruitmentPipeline = () => {
         try {
             setLoading(true);
             const response = await api.get(`/recruiter/tracking/`);
+            console.log(response.data)
             setCandidates(response.data);
         } catch (err) {
             handleError(err, 'Failed to fetch candidates');
@@ -212,7 +213,7 @@ const RecruitmentPipeline = () => {
                                                     backgroundColor: colors.blueAccent[500],
                                                     cursor: 'pointer'
                                                 }}
-                                                    onClick={() => handleViewAnalytics(candidate.job_seeker_id, candidate.firstName)}>
+                                                    onClick={() => handleViewAnalytics(candidate.job_seeker, candidate.firstName)}>
                                                     {candidate.firstName?.charAt(0)}{candidate.lastName?.charAt(0) || ''}
                                                 </Avatar>
                                                 <Box>
@@ -259,7 +260,7 @@ const RecruitmentPipeline = () => {
                                             <Button
                                                 variant="outlined"
                                                 startIcon={<ViewIcon />}
-                                                onClick={() => handleViewAnalytics(candidate.job_seeker_id, candidate.firstName)}
+                                                onClick={() => handleViewAnalytics(candidate.job_seeker, candidate.firstName)}
                                                 sx={{
                                                     color: colors.grey[100],
                                                     borderColor: colors.grey[500],
@@ -331,7 +332,7 @@ const RecruitmentPipeline = () => {
                 onClose={handleMenuClose}
             >
                 <MenuItem onClick={() => {
-                    handleViewAnalytics(selectedCandidate?.job_seeker_id, selectedCandidate?.firstName);
+                    handleViewAnalytics(selectedCandidate?.job_seeker, selectedCandidate?.firstName);
                     handleMenuClose();
                 }}>
                     <ViewIcon sx={{ mr: 1 }} /> View Analytics
