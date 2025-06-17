@@ -166,7 +166,7 @@ const JobSeekerProfile = () => {
 
   const handleDeleteSkill = async (skillId) => {
     try {
-      await api.delete(`/graduate/profile/skills/${skillId}`);
+      await api.delete(`/graduate/profile/skills/${skillId}/delete`);
       showSnackbar("Skill deleted successfully");
       fetchProfileData();
     } catch (error) {
