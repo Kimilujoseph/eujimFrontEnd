@@ -5,12 +5,15 @@ import AuthLayout from "./layouts/authLayout";
 import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
+import Logout from "./auth/Logout"; // <-- Add this import
+//import Graduates from "./scenes/graduates/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import RecruitmentPipeline from "./components/employer/recruiterPipeline";
 import SkillSearchComponent from "./components/skillSearch";
-import EmployerDashboard from "./scenes/employerDashboard";
-import Dashboard from "./scenes/dashboard/index";
+import EmployerProfile from "./scenes/employerProfile/index";
+import AdminDashboard from "./scenes/dashboard/index";
+import RecruiterDashboard from "./scenes/employerDashboard/dashboard"
 import ProtectedRoute from "./auth/protectedRoute";
 import { AuthProvider } from "./auth/authContext";
 function App() {
@@ -31,6 +34,14 @@ function App() {
               }
             />
             <Route
+              path="/logout"
+              element={
+                <ProtectedRoute>
+                  <Logout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/*"
               element={
                 <ProtectedRoute>
@@ -41,15 +52,20 @@ function App() {
                       <Route path="/admin" element={<UserManagementTable role="admin" title="EMPLOYER MANAGEMENT" />} />
                       <Route path="/search/skill" element={<SkillSearchComponent />} />
                       <Route path="/recruitment/pipeline" element={<RecruitmentPipeline />} />
-                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/recruiter/profile" element={<EmployerProfile />} />
+                      <Route path="/" element={<AdminDashboard />} />
                       <Route path="/profile" element={<JobSeekerProfile />} />
-                      <Route path="/employer-dashboard" element={<EmployerDashboard />} />
+                      <Route path="/employer-dashboard" element={<RecruiterDashboard />} />
                       <Route
                         path="/job-seeker-dashboard/"
                         element={<JobSeekerDashboard role='jobseeker' />}
                       />
                       <Route
                         path="/job-seeker-dashboard/:userId?/:firstName?"
+                        element={<JobSeekerDashboard role='admin' />}
+                      />
+                      <Route
+                        path="/job-seeker-dashboard/employer-view/:userId?/:firstName?"
                         element={<JobSeekerDashboard role='admin' />}
                       />
                       <Route

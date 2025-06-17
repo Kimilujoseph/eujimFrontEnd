@@ -36,7 +36,7 @@ const JobSeekerDashboard = ({ role = role }) => {
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        const endpoint = role == 'admin' ? `/graduate/profile/analytics/${userId}/` : "/graduate/profile/analytics/"
+        const endpoint = role !== 'jobseeker' ? `/graduate/profile/analytics/${userId}/` : "/graduate/profile/analytics/"
 
         const response = await api.get(endpoint);
         console.log("Analytics response:", response);
@@ -207,31 +207,52 @@ const JobSeekerDashboard = ({ role = role }) => {
             Recent Interactions
           </Typography>
           <div className="space-y-2">
-            {recruiter_engagement.recent_interactions.map((interaction, index) => (
-              <div key={index} className="flex justify-between items-center p-2 hover:bg-opacity-10 hover:bg-gray-500 rounded transition-colors">
-                <div>
-                  <Typography variant="subtitle1" className="font-medium">
-                    {interaction.company}
-                  </Typography>
-                  <Typography variant="body2">
-                    {interaction.status} • {formatDate(interaction.date)}
-                  </Typography>
-                </div>
-                <Chip
-                  label={interaction.status}
-                  size="small"
-                  sx={{
-                    backgroundColor:
-                      interaction.status === "interviewed"
-                        ? colors.greenAccent[500]
-                        : interaction.status === "shortlisted"
-                          ? colors.blueAccent[500]
-                          : colors.grey[500],
-                    color: colors.grey[100],
-                  }}
-                />
-              </div>
-            ))}
+            {/* First check if recruiter_engagement exists and is not 0 */}
+            {recruiter_engagement && recruiter_engagement !== 0 && recruiter_engagement.recent_interactions ? (
+              /* Then check if there are any interactions */
+              recruiter_engagement.recent_interactions.length > 0 ? (
+                recruiter_engagement.recent_interactions.map((interaction, index) => (
+                  <div key={index} className="flex justify-between items-center p-2 hover:bg-opacity-10 hover:bg-gray-500 rounded transition-colors">
+                    <div>
+                      <Typography variant="subtitle1" className="font-medium">
+                        {interaction.company}
+                      </Typography>
+                      <Typography variant="body2">
+                        {interaction.status} • {formatDate(interaction.date)}
+                      </Typography>
+                      {interaction.notes && (
+                        <Typography variant="caption" className="text-gray-400 block mt-1">
+                          Notes: {interaction.notes}
+                        </Typography>
+                      )}
+                    </div>
+                    <Chip
+                      label={interaction.status}
+                      size="small"
+                      sx={{
+                        backgroundColor:
+                          interaction.status === "interviewed"
+                            ? colors.greenAccent[500]
+                            : interaction.status === "shortlisted"
+                              ? colors.blueAccent[500]
+                              : interaction.status === "rejected"
+                                ? colors.redAccent[500]
+                                : colors.grey[500],
+                        color: colors.grey[100],
+                      }}
+                    />
+                  </div>
+                ))
+              ) : (
+                <Typography variant="body2" className="text-gray-500 italic">
+                  No recent interactions found
+                </Typography>
+              )
+            ) : (
+              <Typography variant="body2" className="text-gray-500 italic">
+                No recruiter engagement data available
+              </Typography>
+            )}
           </div>
         </div>
 
