@@ -6,6 +6,7 @@ import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
 import Logout from "./auth/Logout"; // <-- Add this import
+import ForgotPassword from "./auth/ForgotPassword";
 //import Graduates from "./scenes/graduates/index";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
@@ -39,6 +40,14 @@ function App() {
                 <ProtectedRoute>
                   <Logout />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <AuthLayout>
+                  <ForgotPassword />
+                </AuthLayout>
               }
             />
             <Route
