@@ -30,7 +30,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Visibility as VisibilityIcon,
   Search as SearchIcon,
@@ -43,11 +43,12 @@ import {
   Block as SuspendedIcon,
   Delete as DeleteIcon,
   RestoreFromTrash as RestoreIcon,
+  Description as DocumentsIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash";
 import api from "../../api/api";
-
+import { DocumentsManager } from "../../components/employer/documentUpload"
 
 
 
@@ -83,36 +84,36 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [openDocumentsModal, setOpenDocumentsModal] = useState(false)
+  const [selectedEmployerId, setSelectedEmployerId] = useState(null)
+  const fetchUsers = useCallback(debounce(async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(
+        `/manage/admin/users/all?role=${role}&include_deleted=${includeDeleted}`
+      );
+      setUsers(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  }, 300), [role, includeDeleted]);
 
   useEffect(() => {
-    const fetchUsers = debounce(async () => {
-      try {
-        setLoading(true);
-        const response = await api.get(
-          `/manage/admin/users/all?role=${role}&include_deleted=${includeDeleted}`
-        );
-        setUsers(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    }, 300);
-
     fetchUsers();
     return () => fetchUsers.cancel();
-  }, [role, includeDeleted]);
+  }, [fetchUsers]);
+
 
   const handleViewProfile = (selectedUser) => {
-
-
     if ((user?.role === 'admin' || user?.role === 'superAdmin')) {
       if (role === "jobseeker") {
         navigate(`/job-seeker-dashboard/${selectedUser.id}/${selectedUser.firstName}`);
       }
-      // else if (userType === "employer") {
-      //   navigate(`/employer-dashboard/${user.id}/${user.companyName}`);
-      // }
+      else if (user?.role === "employer") {
+        navigate(`/employer-dashboard/${user.id}/${user.companyName}`);
+      }
     } else {
       setSnackbar({
         open: true,
@@ -142,7 +143,7 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
         severity: "success",
       });
       setOpenCreateModal(false);
-      // fetchUsers();
+      fetchUsers();
       setFirstName("");
       setSecondName("");
       setEmail("");
@@ -218,6 +219,7 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
         message: getSuccessMessage(),
         severity: "success",
       });
+      fetchUsers()
     } catch (err) {
       setSnackbar({
         open: true,
@@ -227,6 +229,10 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
     }
     setOpenDialog(false);
     setAnchorEl(null);
+  };
+  const handleViewDocuments = (userId) => {
+    setSelectedEmployerId(userId);
+    setOpenDocumentsModal(true);
   };
 
   const getSuccessMessage = () => {
@@ -281,6 +287,7 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
         return <PersonIcon />;
     }
   };
+
 
   const columns = [
     { field: "id", headerName: "ID", flex: 0.5 },
@@ -373,6 +380,22 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
                 <VisibilityIcon className="mr-2" /> View Profile
               </div>
             </MenuItem>
+
+            {/* Add Documents option for employers */}
+            {role === "employer" && !params.row.is_deleted && (
+              <MenuItem
+                onClick={() => {
+                  // console.log("Row data:", params.row);
+                  // console.log("Row ID:", params.row.id);
+                  handleViewDocuments(params.row.id);
+                  handleMenuClose();
+                }}
+              >
+                <div className="flex items-center">
+                  <DocumentsIcon className="mr-2" /> Verify Documents
+                </div>
+              </MenuItem>
+            )}
 
             {!params.row.is_deleted && [
               <MenuItem
@@ -510,7 +533,17 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
           </Button>
         </DialogActions>
       </Dialog>
-
+      <Dialog
+        open={openDocumentsModal}
+        onClose={() => setOpenDocumentsModal(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DocumentsManager
+          recruiterId={selectedEmployerId}
+          onClose={() => setOpenDocumentsModal(false)}
+        />
+      </Dialog>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

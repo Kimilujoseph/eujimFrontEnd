@@ -28,9 +28,8 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
     const fetchDocuments = useCallback(async () => {
         try {
             setLoading(true);
-            const endpoint = user?.role === 'admin'
-                ? `/admin/documents/${recruiterId}`
-                : `/recruiter/documents/upload/${user?.id || recruiterId}`;
+            const endpoint = user?.role === 'employer'
+                ? `/recruiter/documents/upload/${user?.id || recruiterId}` : `/recruiter/documents/upload/${recruiterId}`
 
             const response = await api.get(endpoint);
             setDocuments(response.data);
@@ -267,7 +266,7 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
                                                     <span style={{
                                                         color: doc.status === 'approved' ? colors.greenAccent[500] :
                                                             doc.status === 'rejected' ? colors.redAccent[500] :
-                                                            colors.yellowAccent[500]
+                                                                colors.yellowAccent[500]
                                                     }}>
                                                         {doc.status}
                                                     </span>
@@ -317,7 +316,7 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
             </div>
 
             {/* Status actions for admin */}
-            {user?.role === 'admin' && documents.length > 0 && (
+            {user?.role === 'superAdmin' && documents.length > 0 && (
                 <div style={{
                     padding: '16px',
                     borderTop: `1px solid ${colors.grey[700]}`,
@@ -373,9 +372,9 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
                     onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
                     style={{
                         width: '100%',
-                        backgroundColor: snackbar.severity === 'error' ? colors.redAccent[600] : 
-                                        snackbar.severity === 'success' ? colors.greenAccent[600] : 
-                                        colors.blueAccent[600],
+                        backgroundColor: snackbar.severity === 'error' ? colors.redAccent[600] :
+                            snackbar.severity === 'success' ? colors.greenAccent[600] :
+                                colors.blueAccent[600],
                         color: colors.grey[100]
                     }}
                 >
@@ -388,7 +387,7 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
     async function handleBulkStatusUpdate(status) {
         try {
             setLoading(true);
-            await api.put(`/admin/documents/bulk-status/${recruiterId}`, { status });
+            await api.put(`/admin/documents/${recruiterId}`, { status });
             setSnackbar({
                 open: true,
                 message: `All documents ${status} successfully`,
