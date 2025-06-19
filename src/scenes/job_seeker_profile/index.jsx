@@ -283,15 +283,7 @@ const JobSeekerProfile = () => {
               margin="normal"
               placeholder="https://linkedin.com/in/yourprofile"
             />
-            <TextField
-              fullWidth
-              label="Location"
-              name="github_url"
-              value={modalForm.location}
-              onChange={handleModalInputChange}
-              margin="normal"
-              placeholder="you current location"
-            />
+
 
             <TextField
               fullWidth

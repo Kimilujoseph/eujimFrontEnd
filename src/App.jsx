@@ -5,8 +5,8 @@ import AuthLayout from "./layouts/authLayout";
 import MainLayout from "./layouts/mainLayout";
 import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
-import Logout from "./auth/Logout"; // <-- Add this import
-//import Graduates from "./scenes/graduates/index";
+import Logout from "./auth/Logout";
+import TokenExpiredPage from "./auth/tokenExpiry";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import RecruitmentPipeline from "./components/employer/recruiterPipeline";
@@ -30,6 +30,14 @@ function App() {
               element={
                 <AuthLayout>
                   <Login />
+                </AuthLayout>
+              }
+            />
+            <Route
+              path="/token-expired"
+              element={
+                <AuthLayout>
+                  <TokenExpiredPage />
                 </AuthLayout>
               }
             />
