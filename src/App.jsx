@@ -7,10 +7,12 @@ import Login from "./auth/Login";
 import UserManagementTable from "./scenes/userManagement/index";
 import Logout from "./auth/Logout";
 import TokenExpiredPage from "./auth/tokenExpiry";
-import ForgotPassword from "./auth/ForgotPassword";
+import ForgotPassword from "./auth/forgotpassword";
 import JobSeekerProfile from "./scenes/job_seeker_profile";
 import JobSeekerDashboard from "./scenes/JobseekerDashboard/index";
 import RecruitmentPipeline from "./components/employer/recruiterPipeline";
+import RequestVerificationForm from "./auth/emailVerificationRequest";
+import PasswordResetConfirm from "./auth/passworrdReset";
 import SkillSearchComponent from "./components/skillSearch";
 import EmployerProfile from "./scenes/employerProfile/index";
 import AdminDashboard from "./scenes/dashboard/index";
@@ -43,6 +45,23 @@ function App() {
               }
             />
             <Route
+              path="/request-new-verification"
+              element={
+                <AuthLayout>
+                  <RequestVerificationForm purpose="verify" />
+                </AuthLayout>
+              }
+            />
+            <Route
+              path="/reset-password/:uidb64/:token/"
+              element={
+                <AuthLayout>
+                  <PasswordResetConfirm />
+                </AuthLayout>
+              }
+            />
+
+            <Route
               path="/logout"
               element={
                 <ProtectedRoute>
@@ -54,7 +73,7 @@ function App() {
               path="/forgot-password"
               element={
                 <AuthLayout>
-                  <ForgotPassword />
+                  <RequestVerificationForm purpose="reset" />
                 </AuthLayout>
               }
             />
