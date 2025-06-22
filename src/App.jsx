@@ -17,6 +17,7 @@ import SkillSearchComponent from "./components/skillSearch";
 import EmployerProfile from "./scenes/employerProfile/index";
 import AdminDashboard from "./scenes/dashboard/index";
 import RecruiterDashboard from "./scenes/employerDashboard/dashboard"
+import InterviewHistory from "./scenes/recruitmentHistory/index";
 import ProtectedRoute from "./auth/protectedRoute";
 import { AuthProvider } from "./auth/authContext";
 function App() {
@@ -92,6 +93,7 @@ function App() {
                       <Route path="/" element={<AdminDashboard />} />
                       <Route path="/profile" element={<JobSeekerProfile />} />
                       <Route path="/employer-dashboard" element={<RecruiterDashboard />} />
+                      <Route path="/employer/recruitment-history" element={<InterviewHistory />} />
                       <Route
                         path="/job-seeker-dashboard/"
                         element={<JobSeekerDashboard role='jobseeker' />}

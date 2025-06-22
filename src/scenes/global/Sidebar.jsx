@@ -57,7 +57,7 @@ const roleBasedMenuItems = {
   jobseeker: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/job-seeker-dashboard" },
     { text: "Profile", icon: <PersonIcon />, to: "/profile" },
-    { text: "Interview History", icon: <HistoryIcon />, to: "/interviews" },
+    { text: "Interview History", icon: <HistoryIcon />, to: "/employer/recruitment-history" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   employer: [
