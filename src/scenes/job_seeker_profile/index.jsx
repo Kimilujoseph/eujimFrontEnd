@@ -7,6 +7,7 @@ import {
   Typography,
   Snackbar,
   Alert,
+  useTheme,
   Button,
   Modal,
   TextField,
@@ -14,6 +15,7 @@ import {
   Link as MuiLink,
   IconButton,
 } from "@mui/material";
+import { tokens } from "../../theme";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ProfileHeader from "../../components/profile/ProfileHeader";
@@ -26,6 +28,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const JobSeekerProfile = () => {
   const { user } = useAuth();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const [activeTab, setActiveTab] = useState(0);
   const [profileData, setProfileData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -468,7 +472,9 @@ const JobSeekerProfile = () => {
 
       <div className="mt-6 grid grid-cols-1 gap-6">
         {activeTab === 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400]
+          }} >
             <div className="p-4 md:p-6">
               <form onSubmit={handleSaveProfile}>
                 <BasicInfoSection
@@ -502,7 +508,9 @@ const JobSeekerProfile = () => {
         )}
 
         {activeTab === 1 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400],
+          }}>
             <div className="p-4 md:p-6">
               <SkillsSection
                 skills={profileData.skills}
@@ -515,7 +523,9 @@ const JobSeekerProfile = () => {
         )}
 
         {activeTab === 2 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400],
+          }}>
             <div className="p-4 md:p-6">
               <EducationSection
                 educations={profileData.educations}
@@ -536,7 +546,9 @@ const JobSeekerProfile = () => {
         )}
 
         {activeTab === 3 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400],
+          }}>
             <div className="p-4 md:p-6">
               <Typography variant="h6" className="mb-4" color="primary">
                 Certifications
@@ -586,7 +598,7 @@ const JobSeekerProfile = () => {
                     type="submit"
                     disabled={addingCertification}
                     className="flex items-center"
-                    sx={{ mr: 2 }}
+                    sx={{ mr: 2, background: colors.greenAccent[500] }}
                   >
                     {addingCertification ? (
                       <CircularProgress size={24} color="inherit" />
@@ -643,8 +655,8 @@ const JobSeekerProfile = () => {
                                   variant="body2"
                                   className="flex items-center mt-2"
                                 >
-                                  <CloudUploadIcon className="mr-1" />
-                                  View Certificate
+                                  <CloudUploadIcon className="mr-1" sx={{ color: colors.greenAccent[500] }} />
+                                  <Typography variant="body2" sx={{ color: colors.blueAccent[500] }}>Download Certificate</Typography>
                                 </MuiLink>
                               )}
                             </div>
