@@ -305,7 +305,7 @@ const JobSeekerDashboard = ({ role = role }) => {
         </div>
 
         {/* Skills Timeline */}
-        <div className={`md:col-span-6 rounded-lg p-4 shadow-md ${theme.palette.mode === "dark" ? "bg-gray-800" : "bg-white"}`}>
+        <div className={`md:col-span-6 rounded-lg p-4 shadow-md`} style={{ background: colors.primary[400] }}>
           <Typography variant="h6" className="mb-3 font-semibold">
             Skills Growth Timeline
           </Typography>
@@ -332,7 +332,7 @@ const JobSeekerDashboard = ({ role = role }) => {
                   <TimelineContent>
                     <Box
                       sx={{
-                        backgroundColor: theme.palette.mode === 'dark' ? colors.grey[700] : colors.grey[100],
+                        backgroundColor: colors.primary[700],
                         borderRadius: '8px',
                         padding: '8px 12px'
                       }}
