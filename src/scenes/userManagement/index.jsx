@@ -536,7 +536,7 @@ const UserManagementTable = ({ role, title, includeDeleted = true }) => {
       <Dialog
         open={openDocumentsModal}
         onClose={() => setOpenDocumentsModal(false)}
-        maxWidth="md"
+        maxWidth="lg"
         fullWidth
       >
         <DocumentsManager

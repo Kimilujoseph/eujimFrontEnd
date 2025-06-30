@@ -66,9 +66,7 @@ const Login = () => {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      sx={{
-        background: colors.primary[500],
-      }}
+
     >
       <Paper
         elevation={6}
@@ -83,7 +81,7 @@ const Login = () => {
           background: colors.primary[400],
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: colors.greenAccent[500] }}>
+        <Avatar sx={{ m: 1, bgcolor: colors.greenAccent[600] }}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography

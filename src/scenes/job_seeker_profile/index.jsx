@@ -7,19 +7,29 @@ import {
   Typography,
   Snackbar,
   Alert,
+  useTheme,
   Button,
   Modal,
   TextField,
-  CircularProgress
+  CircularProgress,
+  Link as MuiLink,
+  IconButton,
 } from "@mui/material";
+import { tokens } from "../../theme";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import ProfileHeader from "../../components/profile/ProfileHeader";
 import BasicInfoSection from "../../components/profile/BasicInfoSection";
 import SkillsSection from "../../components/profile/SkillsSection";
 import EducationSection from "../../components/profile/EducationSection";
 import api from "../../api/api";
+import AddIcon from "@mui/icons-material/Add";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const JobSeekerProfile = () => {
   const { user } = useAuth();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const [activeTab, setActiveTab] = useState(0);
   const [profileData, setProfileData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -49,6 +59,16 @@ const JobSeekerProfile = () => {
     description: "",
     school_logo: "",
   });
+  const [certifications, setCertifications] = useState([]);
+  const [loadingCertifications, setLoadingCertifications] = useState(false);
+  const [addingCertification, setAddingCertification] = useState(false);
+  const [editingCertificationId, setEditingCertificationId] = useState(null);
+  const [certForm, setCertForm] = useState({
+    issuer: '',
+    awarded_date: '',
+    upload_path: '',
+    description: ''
+  });
   const [profileNotFound, setProfileNotFound] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -58,8 +78,95 @@ const JobSeekerProfile = () => {
     about: "",
     location: ""
   });
+  const [certs, setCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  // Fetch profile data
+  const fetchCertifications = async () => {
+    setLoadingCertifications(true);
+    try {
+      const response = await api.get('/graduate/certifications/');
+      setCertifications(response.data);
+    } catch (error) {
+      showSnackbar('Error fetching certifications', 'error');
+    } finally {
+      setLoadingCertifications(false);
+    }
+  };
+
+  const handleCertificationChange = (e) => {
+    const { name, value } = e.target;
+    setCertForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddCertification = async (e) => {
+    e.preventDefault();
+    setAddingCertification(true);
+
+    try {
+      if (editingCertificationId) {
+        await api.put(`/graduate/certifications/${editingCertificationId}/update/`, certForm);
+        showSnackbar('Certification updated successfully');
+      } else {
+        await api.post('/graduate/certifications/add/', certForm);
+        showSnackbar('Certification added successfully');
+      }
+
+      setCertForm({
+        issuer: '',
+        awarded_date: '',
+        upload_path: '',
+        description: ''
+      });
+      setEditingCertificationId(null);
+      fetchCertifications();
+    } catch (error) {
+      showSnackbar('Error saving certification', 'error');
+    } finally {
+      setAddingCertification(false);
+    }
+  };
+
+  const handleEditCertification = (cert) => {
+    setCertForm({
+      issuer: cert.issuer,
+      awarded_date: cert.awarded_date.split('T')[0],
+      upload_path: cert.upload_path || '',
+      description: cert.description
+    });
+    setEditingCertificationId(cert.id);
+  };
+
+  const handleCancelEdit = () => {
+    setCertForm({
+      issuer: '',
+      awarded_date: '',
+      upload_path: '',
+      description: ''
+    });
+    setEditingCertificationId(null);
+  };
+
+  const handleDeleteCertification = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this certification?')) return;
+
+    try {
+      await api.delete(`/graduate/certifications/${id}/delete/`);
+      showSnackbar('Certification deleted successfully');
+      fetchCertifications();
+    } catch (error) {
+      showSnackbar('Error deleting certification', 'error');
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 3) {
+      fetchCertifications();
+    }
+  }, [activeTab]);
+
   const fetchProfileData = async () => {
     try {
       const response = await api.get("/graduate/profile");
@@ -85,8 +192,22 @@ const JobSeekerProfile = () => {
     }
   };
 
+  const fetchCerts = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.get("/api/v1/graduate/certifications/");
+      setCerts(res.data);
+    } catch {
+      setError("Failed to load certifications.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProfileData();
+    fetchCerts();
   }, []);
 
   const showSnackbar = (message, severity = "success") => {
@@ -101,7 +222,6 @@ const JobSeekerProfile = () => {
     setActiveTab(newValue);
   };
 
-  // Handle modal input changes
   const handleModalInputChange = (e) => {
     const { name, value } = e.target;
     setModalForm((prev) => ({ ...prev, [name]: value }));
@@ -120,7 +240,6 @@ const JobSeekerProfile = () => {
     }
   };
 
-  // Create new profile
   const handleCreateProfile = async () => {
     setIsCreating(true);
     try {
@@ -134,11 +253,6 @@ const JobSeekerProfile = () => {
       await api.post("/graduate/profile/create-or-update", dataToSend);
       showSnackbar("Profile created successfully");
       setCreateModalOpen(false);
-
-      await api.post("/graduate/profile/create-or-update", dataToSend);
-      showSnackbar("Profile created successfully");
-      setCreateModalOpen(false);
-      // Reload profile data
       await fetchProfileData();
     } catch (error) {
       showSnackbar("Error creating profile", "error");
@@ -148,10 +262,8 @@ const JobSeekerProfile = () => {
     }
   };
 
-  // Skills CRUD Operations
   const handleAddSkill = async (skillData) => {
     try {
-      console.log("skilldata", skillData);
       await api.post("/graduate/profile/skills/add/", {
         proffeciency_level: skillData.proffeciency_level,
         skill_name: skillData.skill_name,
@@ -186,10 +298,8 @@ const JobSeekerProfile = () => {
     }
   };
 
-  // Education CRUD Operations
   const handleAddEducation = async () => {
     try {
-      console.log("New Education Data:", newEducation);
       await api.post("/graduate/education/create", newEducation);
       showSnackbar("Education added successfully");
       setNewEducation({
@@ -203,7 +313,6 @@ const JobSeekerProfile = () => {
         description: "",
         school_logo: "",
       });
-
       fetchProfileData();
     } catch (error) {
       showSnackbar("Error adding education", "error");
@@ -233,6 +342,27 @@ const JobSeekerProfile = () => {
     }
   };
 
+  const handleChange = (e) => {
+    setCertForm({ ...certForm, [e.target.name]: e.target.value });
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setAdding(true);
+    setError("");
+    setSuccess("");
+    try {
+      await api.post("/api/v1/graduate/certifications/add/", certForm);
+      setSuccess("Certification added!");
+      setCertForm({ issuer: "", upload_path: "", awarded_date: "", description: "" });
+      fetchCerts();
+    } catch {
+      setError("Failed to add certification.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
   if (profileNotFound) {
     return (
       <div className="flex flex-col items-center justify-center h-screen p-4">
@@ -253,7 +383,6 @@ const JobSeekerProfile = () => {
           </Button>
         </Card>
 
-        {/* Create Profile Modal */}
         <Modal
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
@@ -284,7 +413,6 @@ const JobSeekerProfile = () => {
               placeholder="https://linkedin.com/in/yourprofile"
             />
 
-
             <TextField
               fullWidth
               label="About You"
@@ -296,7 +424,6 @@ const JobSeekerProfile = () => {
               rows={4}
               placeholder="Brief introduction about yourself..."
             />
-
 
             <div className="mt-6 flex justify-end space-x-3">
               <Button
@@ -325,7 +452,6 @@ const JobSeekerProfile = () => {
     );
   }
 
-
   if (!profileData) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -335,10 +461,7 @@ const JobSeekerProfile = () => {
   }
 
   return (
-    <form
-      onSubmit={handleSaveProfile}
-      className="w-full max-w-6xl mx-auto px-4 py-6"
-    >
+    <div className="w-full max-w-6xl mx-auto px-4 py-6">
       <ProfileHeader
         name={`${profileData.profile.firstName} ${profileData.profile.secondName}`}
         activeTab={activeTab}
@@ -349,22 +472,45 @@ const JobSeekerProfile = () => {
 
       <div className="mt-6 grid grid-cols-1 gap-6">
         {activeTab === 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400]
+          }} >
             <div className="p-4 md:p-6">
-              <BasicInfoSection
-                formData={formData}
-                handleInputChange={(e) => {
-                  const { name, value } = e.target;
-                  setFormData((prev) => ({ ...prev, [name]: value }));
-                }}
-                isEditing={isEditing}
-              />
+              <form onSubmit={handleSaveProfile}>
+                <BasicInfoSection
+                  formData={formData}
+                  handleInputChange={(e) => {
+                    const { name, value } = e.target;
+                    setFormData((prev) => ({ ...prev, [name]: value }));
+                  }}
+                  isEditing={isEditing}
+                />
+                {isEditing && (
+                  <div className="flex justify-end mt-4 space-x-3">
+                    <Button
+                      variant="outlined"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                )}
+              </form>
             </div>
           </div>
         )}
 
         {activeTab === 1 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400],
+          }}>
             <div className="p-4 md:p-6">
               <SkillsSection
                 skills={profileData.skills}
@@ -377,7 +523,9 @@ const JobSeekerProfile = () => {
         )}
 
         {activeTab === 2 && (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400],
+          }}>
             <div className="p-4 md:p-6">
               <EducationSection
                 educations={profileData.educations}
@@ -393,6 +541,146 @@ const JobSeekerProfile = () => {
                 onDeleteEducation={handleDeleteEducation}
                 onUpdateEducation={handleUpdateEducation}
               />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 3 && (
+          <div className="rounded-xl shadow-md overflow-hidden transition-all duration-300" style={{
+            backgroundColor: colors.primary[400],
+          }}>
+            <div className="p-4 md:p-6">
+              <Typography variant="h6" className="mb-4" color="primary">
+                Certifications
+              </Typography>
+
+              <Box component="form" onSubmit={handleAddCertification} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <TextField
+                  label="Issuer"
+                  name="issuer"
+                  value={certForm.issuer}
+                  onChange={handleCertificationChange}
+                  required
+                  fullWidth
+                />
+                <TextField
+                  label="Awarded Date"
+                  name="awarded_date"
+                  type="date"
+                  value={certForm.awarded_date}
+                  onChange={handleCertificationChange}
+                  InputLabelProps={{ shrink: true }}
+                  required
+                  fullWidth
+                />
+                <TextField
+                  label="Certificate URL"
+                  name="upload_path"
+                  value={certForm.upload_path}
+                  onChange={handleCertificationChange}
+                  fullWidth
+                  placeholder="https://drive.google.com/..."
+                />
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={certForm.description}
+                  onChange={handleCertificationChange}
+                  required
+                  fullWidth
+                  multiline
+                  rows={3}
+                />
+                <div className="flex items-center md:col-span-2">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={addingCertification}
+                    className="flex items-center"
+                    sx={{ mr: 2, background: colors.greenAccent[500] }}
+                  >
+                    {addingCertification ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : (
+                      <>
+                        <AddIcon className="mr-2" />
+                        Add Certification
+                      </>
+                    )}
+                  </Button>
+                  {editingCertificationId && (
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel Edit
+                    </Button>
+                  )}
+                </div>
+              </Box>
+
+              {loadingCertifications ? (
+                <div className="flex justify-center items-center h-40">
+                  <CircularProgress />
+                </div>
+              ) : (
+                <div>
+                  {certifications.length === 0 ? (
+                    <Typography variant="body1" className="text-center text-gray-500 py-4">
+                      No certifications added yet.
+                    </Typography>
+                  ) : (
+                    certifications.map((cert) => (
+                      <Card key={cert.id} className="mb-4">
+                        <CardContent>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <Typography variant="h6" component="div">
+                                {cert.issuer}
+                              </Typography>
+                              <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                Awarded on: {new Date(cert.awarded_date).toLocaleDateString()}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {cert.description}
+                              </Typography>
+                              {cert.upload_path && (
+                                <MuiLink
+                                  href={cert.upload_path}
+                                  target="_blank"
+                                  rel="noopener"
+                                  color="primary"
+                                  variant="body2"
+                                  className="flex items-center mt-2"
+                                >
+                                  <CloudUploadIcon className="mr-1" sx={{ color: colors.greenAccent[500] }} />
+                                  <Typography variant="body2" sx={{ color: colors.blueAccent[500] }}>Download Certificate</Typography>
+                                </MuiLink>
+                              )}
+                            </div>
+                            <div className="flex space-x-2">
+                              <IconButton
+                                color="primary"
+                                onClick={() => handleEditCertification(cert)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton
+                                color="error"
+                                onClick={() => handleDeleteCertification(cert.id)}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -412,7 +700,7 @@ const JobSeekerProfile = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </form>
+    </div>
   );
 };
 
