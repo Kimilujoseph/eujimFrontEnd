@@ -58,6 +58,7 @@ const roleBasedMenuItems = {
     { text: "Dashboard", icon: <DashboardIcon />, to: "/job-seeker-dashboard" },
     { text: "Profile", icon: <PersonIcon />, to: "/profile" },
     { text: "Interview History", icon: <HistoryIcon />, to: "/employer/recruitment-history" },
+    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   employer: [
@@ -65,6 +66,7 @@ const roleBasedMenuItems = {
     { text: "Profile", icon: <PersonIcon />, to: "/recruiter/profile" },
     { text: "Find Candidates", icon: <SearchIcon />, to: "/search/skill" },
     { text: "Recruitment Pipeline", icon: <GroupIcon />, to: "/recruitment/pipeline" },
+    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ]
 };
