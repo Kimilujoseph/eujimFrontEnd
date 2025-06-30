@@ -49,7 +49,7 @@ const Login = () => {
     } catch (err) {
       console.log(err);
       if (err.response?.status === 401) {
-        setError("Invalid email or password.");
+        setError(err.response?.detail);
       } else if (err.response?.status === 500) {
         setError("Server error. Please try again later.");
       } else {

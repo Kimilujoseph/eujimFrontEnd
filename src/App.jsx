@@ -19,6 +19,7 @@ import AdminDashboard from "./scenes/dashboard/index";
 import RecruiterDashboard from "./scenes/employerDashboard/dashboard"
 import InterviewHistory from "./scenes/recruitmentHistory/index";
 import ProtectedRoute from "./auth/protectedRoute";
+import SettingsPage from "./scenes/global/settings"
 import { AuthProvider } from "./auth/authContext";
 function App() {
   const [theme, colorMode] = useMode();
@@ -94,6 +95,7 @@ function App() {
                       <Route path="/profile" element={<JobSeekerProfile />} />
                       <Route path="/employer-dashboard" element={<RecruiterDashboard />} />
                       <Route path="/employer/recruitment-history" element={<InterviewHistory />} />
+                      <Route path="/settings" element={<SettingsPage />} />
                       <Route
                         path="/job-seeker-dashboard/"
                         element={<JobSeekerDashboard role='jobseeker' />}
