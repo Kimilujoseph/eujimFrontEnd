@@ -52,11 +52,13 @@ const roleBasedMenuItems = {
     { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
     { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
     { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Job Posting Management", icon: <WorkIcon />, to: "/job-posting" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   jobseeker: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/job-seeker-dashboard" },
     { text: "Profile", icon: <PersonIcon />, to: "/profile" },
+    { text: "Job Feeds", icon: <WorkIcon />, to: "/job-feeds" },
     { text: "Interview History", icon: <HistoryIcon />, to: "/employer/recruitment-history" },
     { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
@@ -66,6 +68,7 @@ const roleBasedMenuItems = {
     { text: "Profile", icon: <PersonIcon />, to: "/recruiter/profile" },
     { text: "Find Candidates", icon: <SearchIcon />, to: "/search/skill" },
     { text: "Recruitment Pipeline", icon: <GroupIcon />, to: "/recruitment/pipeline" },
+    { text: "Job Posting Management", icon: <WorkIcon />, to: "/job-posting" },
     { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ]
