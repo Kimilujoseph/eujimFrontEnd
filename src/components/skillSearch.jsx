@@ -52,10 +52,10 @@ const SkillSearchComponent = () => {
     ];
 
     const proficiencyLevels = [
-        { value: 'beginner', label: 'Beginner' },
+        { value: 'begginner', label: 'Beginner' },
         { value: 'intermediate', label: 'Intermediate' },
-        { value: 'advanced', label: 'Advanced' },
-        { value: 'expert', label: 'Expert' }
+        { value: 'midlevel', label: 'Mid-Level' },
+        { value: 'proffessional', label: 'Professional' }
     ];
 
     const handleSearch = async () => {
@@ -94,7 +94,7 @@ const SkillSearchComponent = () => {
             if (err.response?.status === 404) {
                 setSnackbar({
                     open: true,
-                    message: err.response.data?.message || 'No candidates match your search criteria',
+                    message: err.response.data?.message || 'No users found with the specified criteria.',
                     severity: 'info'
                 });
             }

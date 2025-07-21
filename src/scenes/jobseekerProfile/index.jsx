@@ -355,8 +355,8 @@ const JobSeekerProfile = () => {
                               skill.proficiency_level === "professional"
                                 ? "success"
                                 : skill.proficiency_level === "midlevel"
-                                ? "warning"
-                                : "info"
+                                  ? "warning"
+                                  : "info"
                             }
                             size="small"
                             sx={{ mt: 1 }}

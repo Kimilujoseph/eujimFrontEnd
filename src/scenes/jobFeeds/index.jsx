@@ -252,6 +252,7 @@ const JobFeeds = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [jobs, setJobs] = useState([]);
+    const [filteredJobs, setFilteredJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
@@ -264,11 +265,12 @@ const JobFeeds = () => {
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const fetchJobs = async (pageNum, search) => {
+    const fetchJobs = async (pageNum) => {
         setLoading(true);
         try {
-            const response = await api.get(`/job-postings/?page=${pageNum}&limit=10&search=${search}`);
+            const response = await api.get(`/job-postings/?page=${pageNum}&limit=10`);
             setJobs(response.data.results);
+            setFilteredJobs(response.data.results);
             setTotalPages(Math.ceil(response.data.count / response.data.page_size));
             setError(null);
         } catch (err) {
@@ -289,11 +291,23 @@ const JobFeeds = () => {
         }
     };
 
-    const debouncedFetchJobs = useCallback(debounce(fetchJobs, 500), []);
+    useEffect(() => {
+        fetchJobs(page);
+    }, [page]);
 
     useEffect(() => {
-        debouncedFetchJobs(page, searchTerm);
-    }, [page, searchTerm, debouncedFetchJobs]);
+        const lowercasedFilter = searchTerm.toLowerCase();
+        const filteredData = jobs.filter(job => {
+            const titleMatch = job.title.toLowerCase().includes(lowercasedFilter);
+            const companyMatch = job.recruiter_company.toLowerCase().includes(lowercasedFilter);
+            const skillsMatch = job.required_skills?.some(skill =>
+                skill.skill_name.toLowerCase().includes(lowercasedFilter)
+            );
+            return titleMatch || companyMatch || skillsMatch;
+        });
+        setFilteredJobs(filteredData);
+    }, [searchTerm, jobs]);
+
 
     const handleEasyApply = async (jobId, recruiterId) => {
         setApplying(true);
@@ -379,7 +393,7 @@ const JobFeeds = () => {
                     <Typography color="error">{error}</Typography>
                 ) : (
                     <>
-                        {jobs.map((job) => (
+                        {filteredJobs.map((job) => (
                             <JobCard
                                 key={job.id}
                                 job={job}

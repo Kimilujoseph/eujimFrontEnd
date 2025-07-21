@@ -26,6 +26,7 @@ import { AuthProvider } from "./auth/authContext";
 function App() {
   const [theme, colorMode] = useMode();
 
+
   return (
     <AuthProvider>
       <ColorModeContext.Provider value={colorMode}>
@@ -99,7 +100,7 @@ function App() {
                       <Route path="/employer/recruitment-history" element={<InterviewHistory />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/job-feeds" element={<JobFeeds />} />
-                <Route path="/job-posting" element={<JobPostingManagement />} />
+                      <Route path="/job-posting" element={<JobPostingManagement />} />
                       <Route
                         path="/job-seeker-dashboard/"
                         element={<JobSeekerDashboard role='jobseeker' />}
