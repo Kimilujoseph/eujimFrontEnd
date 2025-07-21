@@ -30,13 +30,19 @@ const EducationForm = ({ formState, handleInputChange, handleCancel, handleSave,
             </div>
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Degree</label>
-                <input
-                    type="text"
+                <select
                     name="degree"
                     value={formState.degree}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                />
+                >
+                    <option value="">Select a degree</option>
+                    <option value="certificate">Certificate</option>
+                    <option value="diploma">Diploma</option>
+                    <option value="bachelor">Bachelor Degree</option>
+                    <option value="master">Masters</option>
+                    <option value="phd">PhD</option>
+                </select>
             </div>
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Field of Study</label>
@@ -66,9 +72,8 @@ const EducationForm = ({ formState, handleInputChange, handleCancel, handleSave,
                     value={formState.end_year}
                     onChange={handleInputChange}
                     disabled={formState.is_current}
-                    className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${
-                        formState.is_current ? 'border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-600' : 'border-gray-300 dark:border-gray-600'
-                    }`}
+                    className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white ${formState.is_current ? 'border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-600' : 'border-gray-300 dark:border-gray-600'
+                        }`}
                 />
             </div>
             <div className="md:col-span-2">
@@ -118,7 +123,7 @@ const EducationSection = ({ educations = [], onAddEducation, onDeleteEducation, 
     const [editingId, setEditingId] = useState(null);
     const [formState, setFormState] = useState({
         institution_name: "", qualification: "", degree: "", field_of_study: "",
-        start_year: "", end_year: "", is_current: false, description: ""
+        start_year: "", end_year: null, is_current: false, description: ""
     });
 
     const handleInputChange = (e) => {
@@ -135,14 +140,14 @@ const EducationSection = ({ educations = [], onAddEducation, onDeleteEducation, 
         }
         setFormState({
             institution_name: "", qualification: "", degree: "", field_of_study: "",
-            start_year: "", end_year: "", is_current: false, description: ""
+            start_year: "", end_year: null, is_current: false, description: ""
         });
         setIsAdding(false);
     };
 
     const handleEdit = (edu) => {
         setEditingId(edu.id);
-        setFormState({ ...edu, end_year: edu.end_year || '' });
+        setFormState({ ...edu, end_year: edu.end_year || null });
         setIsAdding(false);
     };
 
@@ -151,7 +156,7 @@ const EducationSection = ({ educations = [], onAddEducation, onDeleteEducation, 
         setIsAdding(false);
         setFormState({
             institution_name: "", qualification: "", degree: "", field_of_study: "",
-            start_year: "", end_year: "", is_current: false, description: ""
+            start_year: "", end_year: null, is_current: false, description: ""
         });
     };
 
@@ -206,14 +211,14 @@ const EducationSection = ({ educations = [], onAddEducation, onDeleteEducation, 
                                         </div>
                                         {!isReadOnly && (
                                             <div className="flex space-x-1">
-                                                <IconButton 
+                                                {/* <IconButton
                                                     onClick={() => handleEdit(edu)}
                                                     className="text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700"
                                                     size="small"
                                                 >
                                                     <Edit fontSize="small" />
-                                                </IconButton>
-                                                <IconButton 
+                                                </IconButton> */}
+                                                <IconButton
                                                     onClick={() => onDeleteEducation(edu.id)}
                                                     className="text-red-600 hover:bg-red-50 dark:hover:bg-gray-700"
                                                     size="small"

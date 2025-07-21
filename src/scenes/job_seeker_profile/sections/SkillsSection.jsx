@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Box,
     Typography,
     Chip,
     TextField,
@@ -9,7 +8,6 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
-    IconButton,
     useTheme
 } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
@@ -18,18 +16,37 @@ import { tokens } from '../../../theme';
 const SkillsSection = ({ skills = [], onAddSkill, onDeleteSkill, isReadOnly }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const [newSkill, setNewSkill] = useState({ skill_name: '', proffeciency_level: 'Intermediate' });
-    const [isAdding, setIsAdding] = useState(false);
+    const [newSkill, setNewSkill] = useState({
+        skill_name: '',
+        proffeciency_level: 'intermediate' // Note the double 'f' to match API
+    });
 
     const handleAddClick = () => {
         if (newSkill.skill_name.trim()) {
-            onAddSkill(newSkill);
-            setNewSkill({ skill_name: '', proffeciency_level: 'Intermediate' });
-            setIsAdding(false);
+            onAddSkill({
+                proffeciency_level: newSkill.proffeciency_level,
+                skill_name: newSkill.skill_name
+            });
+            setNewSkill({
+                skill_name: '',
+                proffeciency_level: 'intermediate'
+            });
         }
     };
 
-    const proficiencyLevels = ['Beginner', 'Intermediate', 'Mid-Level', 'Professional'];
+    // Proficiency levels with exact spelling as in your API
+    const proficiencyLevels = [
+        { value: 'begginner', label: 'Beginner' }, // Note the double 'g'
+        { value: 'intermediate', label: 'Intermediate' },
+        { value: 'midlevel', label: 'Mid-Level' },
+        { value: 'proffessional', label: 'Professional' } // Note the double 'f'
+    ];
+
+    // Helper to get display label for chip
+    const getProficiencyLabel = (level) => {
+        const found = proficiencyLevels.find(l => l.value === level);
+        return found ? found.label : level;
+    };
 
     return (
         <div className="p-4 md:p-6">
@@ -44,7 +61,10 @@ const SkillsSection = ({ skills = [], onAddSkill, onDeleteSkill, isReadOnly }) =
                         <TextField
                             label="Skill Name"
                             value={newSkill.skill_name}
-                            onChange={(e) => setNewSkill({ ...newSkill, skill_name: e.target.value })}
+                            onChange={(e) => setNewSkill({
+                                ...newSkill,
+                                skill_name: e.target.value
+                            })}
                             variant="outlined"
                             size="small"
                             placeholder="e.g., React"
@@ -53,11 +73,19 @@ const SkillsSection = ({ skills = [], onAddSkill, onDeleteSkill, isReadOnly }) =
                             <InputLabel>Proficiency</InputLabel>
                             <Select
                                 value={newSkill.proffeciency_level}
-                                onChange={(e) => setNewSkill({ ...newSkill, proffeciency_level: e.target.value })}
+                                onChange={(e) => setNewSkill({
+                                    ...newSkill,
+                                    proffeciency_level: e.target.value
+                                })}
                                 label="Proficiency"
                             >
                                 {proficiencyLevels.map(level => (
-                                    <MenuItem key={level} value={level}>{level}</MenuItem>
+                                    <MenuItem
+                                        key={level.value}
+                                        value={level.value}
+                                    >
+                                        {level.label}
+                                    </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -66,7 +94,12 @@ const SkillsSection = ({ skills = [], onAddSkill, onDeleteSkill, isReadOnly }) =
                             onClick={handleAddClick}
                             startIcon={<Add />}
                             disabled={!newSkill.skill_name.trim()}
-                            sx={{ backgroundColor: colors.greenAccent[600], '&:hover': { backgroundColor: colors.greenAccent[700] } }}
+                            sx={{
+                                backgroundColor: colors.greenAccent[600],
+                                '&:hover': {
+                                    backgroundColor: colors.greenAccent[700]
+                                }
+                            }}
                         >
                             Add Skill
                         </Button>
@@ -78,7 +111,7 @@ const SkillsSection = ({ skills = [], onAddSkill, onDeleteSkill, isReadOnly }) =
                 {skills.length > 0 ? skills.map((skill) => (
                     <Chip
                         key={skill.id}
-                        label={`${skill.skill_name} (${skill.proffeciency_level})`}
+                        label={`${skill.skill.skillName} (${getProficiencyLabel(skill.proffeciency_level)})`}
                         onDelete={!isReadOnly ? () => onDeleteSkill(skill.id) : undefined}
                         deleteIcon={!isReadOnly ? <Delete /> : undefined}
                         sx={{

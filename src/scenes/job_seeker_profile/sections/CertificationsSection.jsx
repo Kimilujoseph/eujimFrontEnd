@@ -1,10 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-    Box, Typography, Card, CardContent, IconButton, TextField, Button, Grid, CircularProgress, Link as MuiLink, useTheme
+    Typography, Card, CardContent, IconButton, TextField, Button, CircularProgress, Link as MuiLink, useTheme
 } from '@mui/material';
 import { Edit, Delete, Add, CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import api from '../../../api/api';
 import { tokens } from '../../../theme';
+
+const CertificationForm = ({ formState, handleInputChange, handleCancel, handleSave, editingId, isSubmitting }) => {
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
+
+    return (
+        <div className="p-6 mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
+                {editingId ? 'Edit Certification' : 'Add New Certification'}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                    fullWidth
+                    label="Issuer"
+                    name="issuer"
+                    value={formState.issuer}
+                    onChange={handleInputChange}
+                    required
+                    variant="outlined"
+                />
+                <TextField
+                    fullWidth
+                    label="Awarded Date"
+                    name="awarded_date"
+                    type="date"
+                    value={formState.awarded_date}
+                    onChange={handleInputChange}
+                    InputLabelProps={{ shrink: true }}
+                    required
+                    variant="outlined"
+                />
+                <div className="md:col-span-2">
+                    <TextField
+                        fullWidth
+                        label="Certificate URL"
+                        name="upload_path"
+                        value={formState.upload_path}
+                        onChange={handleInputChange}
+                        placeholder="https://example.com/certificate.pdf"
+                        variant="outlined"
+                    />
+                </div>
+                <div className="md:col-span-2">
+                    <TextField
+                        fullWidth
+                        label="Description"
+                        name="description"
+                        multiline
+                        rows={3}
+                        value={formState.description}
+                        onChange={handleInputChange}
+                        variant="outlined"
+                    />
+                </div>
+                <div className="md:col-span-2 flex justify-end space-x-3">
+                    <Button onClick={handleCancel} variant="outlined">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSave} variant="contained" color="primary" disabled={isSubmitting}>
+                        {isSubmitting ? <CircularProgress size={24} /> : 'Save'}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const CertificationsSection = ({ showSnackbar, isReadOnly, jobSeekerId }) => {
     const theme = useTheme();
@@ -18,7 +85,7 @@ const CertificationsSection = ({ showSnackbar, isReadOnly, jobSeekerId }) => {
         issuer: '', awarded_date: '', upload_path: '', description: ''
     });
 
-    const fetchCertifications = async () => {
+    const fetchCertifications = useCallback(async () => {
         setLoading(true);
         try {
             const url = isReadOnly ? `/graduate/certifications/${jobSeekerId}/` : '/graduate/certifications/';
@@ -29,11 +96,11 @@ const CertificationsSection = ({ showSnackbar, isReadOnly, jobSeekerId }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [isReadOnly, jobSeekerId, showSnackbar]);
 
     useEffect(() => {
         fetchCertifications();
-    }, [jobSeekerId]);
+    }, [fetchCertifications]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -87,24 +154,6 @@ const CertificationsSection = ({ showSnackbar, isReadOnly, jobSeekerId }) => {
         setFormState({ issuer: '', awarded_date: '', upload_path: '', description: '' });
     };
 
-    const CertificationForm = () => (
-        <div className="p-4 rounded-lg mb-6" style={{ backgroundColor: colors.primary[500] }}>
-            <Typography variant="h6" className="mb-4">{editingId ? 'Edit Certification' : 'Add New Certification'}</Typography>
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}><TextField fullWidth label="Issuer" name="issuer" value={formState.issuer} onChange={handleInputChange} required /></Grid>
-                <Grid item xs={12} sm={6}><TextField fullWidth label="Awarded Date" name="awarded_date" type="date" value={formState.awarded_date} onChange={handleInputChange} InputLabelProps={{ shrink: true }} required /></Grid>
-                <Grid item xs={12}><TextField fullWidth label="Certificate URL" name="upload_path" value={formState.upload_path} onChange={handleInputChange} placeholder="https://example.com/certificate.pdf" /></Grid>
-                <Grid item xs={12}><TextField fullWidth label="Description" name="description" multiline rows={3} value={formState.description} onChange={handleInputChange} /></Grid>
-                <Grid item xs={12} className="flex justify-end gap-2">
-                    <Button onClick={handleCancel} variant="outlined">Cancel</Button>
-                    <Button onClick={handleSave} variant="contained" color="primary" disabled={isSubmitting}>
-                        {isSubmitting ? <CircularProgress size={24} /> : 'Save'}
-                    </Button>
-                </Grid>
-            </Grid>
-        </div>
-    );
-
     if (loading) {
         return <div className="flex justify-center p-8"><CircularProgress /></div>;
     }
@@ -120,7 +169,16 @@ const CertificationsSection = ({ showSnackbar, isReadOnly, jobSeekerId }) => {
                 )}
             </div>
 
-            {!isReadOnly && (isAdding || editingId !== null) && <CertificationForm />}
+            {!isReadOnly && (isAdding || editingId !== null) && (
+                <CertificationForm
+                    formState={formState}
+                    handleInputChange={handleInputChange}
+                    handleCancel={handleCancel}
+                    handleSave={handleSave}
+                    editingId={editingId}
+                    isSubmitting={isSubmitting}
+                />
+            )}
 
             <div className="space-y-4">
                 {certifications.length > 0 ? certifications.map((cert) => (
