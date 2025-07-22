@@ -32,7 +32,7 @@ const ProfileSectionWrapper = ({ children, colors }) => (
 
 const JobSeekerProfile = () => {
   const { user } = useAuth();
-  const { jobSeekerId } = useParams(); // For recruiter/admin view
+  const { jobSeekerId } = useParams(); 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 

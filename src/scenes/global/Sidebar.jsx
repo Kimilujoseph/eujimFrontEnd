@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../auth/authContext";
 import {
   Drawer,
@@ -13,18 +13,18 @@ import {
   IconButton,
   Tooltip,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Business as BusinessIcon,
   Search as SearchIcon,
-  Group as GroupIcon
+  Group as GroupIcon,
+  SupervisorAccount as SupervisorAccountIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
 import ReceiptIcon from "@mui/icons-material/Receipt";
-import ContactsIcon from "@mui/icons-material/Contacts";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import PieChartIcon from "@mui/icons-material/PieChart";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
@@ -41,17 +41,17 @@ import { tokens } from "../../theme";
 const roleBasedMenuItems = {
   superAdmin: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
-    { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
-    { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
-    { text: "Admin Management", icon: <ContactsIcon />, to: "/admin" },
-    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Graduate Management", icon: <SchoolIcon />, to: "/graduates" },
+    { text: "Employer Management", icon: <BusinessIcon />, to: "/employers" },
+    { text: "Admin Management", icon: <SupervisorAccountIcon />, to: "/admin" },
+    { text: "Settings", icon: <SettingsIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   Admin: [
     { text: "Dashboard", icon: <DashboardIcon />, to: "/" },
-    { text: "Graduate Management", icon: <PeopleIcon />, to: "/graduates" },
-    { text: "Employer Management", icon: <ContactsIcon />, to: "/employers" },
-    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Graduate Management", icon: <SchoolIcon />, to: "/graduates" },
+    { text: "Employer Management", icon: <BusinessIcon />, to: "/employers" },
+    { text: "Settings", icon: <SettingsIcon />, to: "/settings" },
     { text: "Job Posting Management", icon: <WorkIcon />, to: "/job-posting" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
@@ -60,7 +60,7 @@ const roleBasedMenuItems = {
     { text: "Profile", icon: <PersonIcon />, to: "/profile" },
     { text: "Job Feeds", icon: <WorkIcon />, to: "/job-feeds" },
     { text: "Interview History", icon: <HistoryIcon />, to: "/employer/recruitment-history" },
-    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Settings", icon: <SettingsIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ],
   employer: [
@@ -69,7 +69,7 @@ const roleBasedMenuItems = {
     { text: "Find Candidates", icon: <SearchIcon />, to: "/search/skill" },
     { text: "Recruitment Pipeline", icon: <GroupIcon />, to: "/recruitment/pipeline" },
     { text: "Job Posting Management", icon: <WorkIcon />, to: "/job-posting" },
-    { text: "Settings", icon: <PieChartIcon />, to: "/settings" },
+    { text: "Settings", icon: <SettingsIcon />, to: "/settings" },
     { text: "Logout", icon: <LogoutIcon />, to: "/logout" },
   ]
 };
@@ -79,10 +79,15 @@ const collapsedWidth = 60;
 
 const Sidebar = ({ isSidebar = true }) => {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const [collapsed, setCollapsed] = useState(isSmallScreen);
   const { user } = useAuth();
+
+  useEffect(() => {
+    setCollapsed(isSmallScreen);
+  }, [isSmallScreen]);
 
   // Get menu items based on user role
   const menuItems = roleBasedMenuItems[user?.role || "admin"];

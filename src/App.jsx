@@ -114,7 +114,7 @@ function App() {
                         element={<JobSeekerDashboard role='admin' />}
                       />
                       <Route
-                        path="/user/:id/profile"
+                        path="/user/:jobSeekerId/profile"
                         element={<JobSeekerProfile />}
                       />
                     </Routes>

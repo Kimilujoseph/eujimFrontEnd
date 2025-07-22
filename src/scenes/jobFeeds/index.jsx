@@ -265,34 +265,44 @@ const JobFeeds = () => {
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const fetchJobs = async (pageNum) => {
-        setLoading(true);
-        try {
-            const response = await api.get(`/job-postings/?page=${pageNum}&limit=10`);
-            setJobs(response.data.results);
-            setFilteredJobs(response.data.results);
-            setTotalPages(Math.ceil(response.data.count / response.data.page_size));
-            setError(null);
-        } catch (err) {
-            if (err.response) {
-                if (err.response.status === 404) {
-                    setError('No job postings found.');
-                } else if (err.response.status === 500) {
-                    setError('An internal server error occurred.');
-                } else {
-                    setError('Failed to fetch job postings.');
-                }
-            } else {
-                setError('A network error occurred.');
-            }
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const abortController = new AbortController();
+
+        const fetchJobs = async (pageNum) => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await api.get(`/job-postings/?page=${pageNum}&limit=10`, { signal: abortController.signal });
+                setJobs(response.data.results);
+                setFilteredJobs(response.data.results);
+                setTotalPages(Math.ceil(response.data.count / response.data.page_size));
+            } catch (err) {
+                if (err.name !== 'CanceledError') {
+                    if (err.response) {
+                        if (err.response.status === 404) {
+                            setError('No job postings found.');
+                        } else if (err.response.status === 500) {
+                            setError('An internal server error occurred.');
+                        } else {
+                            setError('Failed to fetch job postings.');
+                        }
+                    } else {
+                        setError('A network error occurred.');
+                    }
+                    console.error(err);
+                }
+            } finally {
+                if (!abortController.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        };
+
         fetchJobs(page);
+
+        return () => {
+            abortController.abort();
+        };
     }, [page]);
 
     useEffect(() => {

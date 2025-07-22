@@ -177,11 +177,36 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
 
         } catch (err) {
             console.error("Error fetching document for view:", err);
-            setSnackbar({
-                open: true,
-                message: "Failed to load document for viewing.",
-                severity: "error"
-            });
+            if (err.response) {
+                switch (err.response.status) {
+                    case 400:
+                        setSnackbar({
+                            open: true,
+                            message: err.response.data?.message || "A service error occurred while trying to view the document.",
+                            severity: "error"
+                        });
+                        break;
+                    case 404:
+                        setSnackbar({
+                            open: true,
+                            message: "The requested document could not be found.",
+                            severity: "error"
+                        });
+                        break;
+                    default:
+                        setSnackbar({
+                            open: true,
+                            message: "Failed to load document for viewing due to a server error.",
+                            severity: "error"
+                        });
+                }
+            } else {
+                setSnackbar({
+                    open: true,
+                    message: "An unexpected error occurred. Please check your network connection.",
+                    severity: "error"
+                });
+            }
         }
     };
 
@@ -477,7 +502,10 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
     async function handleBulkStatusUpdate(status) {
         try {
             setLoading(true);
-            await api.put(`/admin/documents/${recruiterId}`, { status });
+            const updatePromises = documents.map(doc =>
+                api.put(`/recruiter/documents/verify/${doc.id}/`, { status })
+            );
+            await Promise.all(updatePromises);
             setSnackbar({
                 open: true,
                 message: `All documents ${status} successfully`,
@@ -485,11 +513,44 @@ export const DocumentsManager = ({ recruiterId, onClose }) => {
             });
             fetchDocuments();
         } catch (err) {
-            setSnackbar({
-                open: true,
-                message: err.response?.data?.message || `Failed to ${status} documents`,
-                severity: "error"
-            });
+            console.error("Error updating document status:", err);
+            if (err.response) {
+                switch (err.response.status) {
+                    case 400:
+                        setSnackbar({
+                            open: true,
+                            message: err.response.data?.message || "A bad request occurred while updating documents.",
+                            severity: "error"
+                        });
+                        break;
+                    case 403:
+                        setSnackbar({
+                            open: true,
+                            message: "You are not authorized to perform this action. Admin privileges required.",
+                            severity: "error"
+                        });
+                        break;
+                    case 404:
+                        setSnackbar({
+                            open: true,
+                            message: "One or more documents were not found.",
+                            severity: "error"
+                        });
+                        break;
+                    default:
+                        setSnackbar({
+                            open: true,
+                            message: `Failed to ${status} documents due to a server error.`,
+                            severity: "error"
+                        });
+                }
+            } else {
+                setSnackbar({
+                    open: true,
+                    message: "An unexpected error occurred. Please check your network connection.",
+                    severity: "error"
+                });
+            }
         } finally {
             setLoading(false);
         }
