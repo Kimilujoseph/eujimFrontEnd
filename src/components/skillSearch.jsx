@@ -121,7 +121,8 @@ const SkillSearchComponent = () => {
             console.log("candidate key", candidateId)
             await api.post('/recruiter/tracking/', {
                 job_seeker_id: candidateId,
-                notes: notes || `Interested in ${selectedSkills.join(', ')} skills`
+                notes: notes || `Interested in ${selectedSkills.join(', ')} skills`,
+                status: "shortlisted",
             });
             setSnackbar({
                 open: true,
