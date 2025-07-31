@@ -55,7 +55,7 @@ const UserManagement = ({ role, title, includeDeleted = true }) => {
             if (role === 'jobseeker') {
                 navigate(`/job-seeker-dashboard/${userToView.id}/${userToView.firstName}`);
             } else if (role === 'employer') {
-                navigate(`/employer-dashboard/${userToView.id}/${userToView.companyName}`);
+                navigate(`/employer-dashboard/${userToView.id}/${userToView.companyName || 'No Company Name'}`);
             }
         } else {
             setSnackbar({ open: true, message: "You don't have permission to view this profile", severity: 'error' });
@@ -217,7 +217,7 @@ const UserManagement = ({ role, title, includeDeleted = true }) => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-            
+
             <Dialog
                 open={openDocumentsModal}
                 onClose={() => setOpenDocumentsModal(false)}

@@ -32,26 +32,36 @@ const SettingsPage = () => {
     const colors = tokens(theme.palette.mode);
 
     const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        reset,
-        watch,
+        register: registerProfile,
+        handleSubmit: handleSubmitProfile,
+        formState: { errors: profileErrors },
     } = useForm({
         defaultValues: {
             firstName: user?.firstName || "",
             lastName: user?.lastName || "",
             email: user?.email || "",
-        }
+        },
     });
+
+    const {
+        register: registerPassword,
+        handleSubmit: handleSubmitPassword,
+        formState: { errors: passwordErrors },
+        watch: watchPassword,
+        reset: resetPassword,
+    } = useForm();
 
     // Handle profile update
     const onSubmitProfile = async (data) => {
+        if (!user || !user.id) {
+            setError("User not found. Please log in again.");
+            return;
+        }
         try {
             setLoading(true);
-            const response = await api.patch("/api/v1/user/profile", {
-                firstName: data.firstName,
-                lastName: data.lastName,
+            const response = await api.put(`/manage/users/${user.id}/update-names`, {
+                first_name: data.firstName,
+                last_name: data.lastName,
             });
             setSuccess("Profile updated successfully");
             setTimeout(() => setSuccess(""), 3000);
@@ -138,30 +148,30 @@ const SettingsPage = () => {
 
                 <Box
                     component="form"
-                    onSubmit={handleSubmit(onSubmitProfile)}
+                    onSubmit={handleSubmitProfile(onSubmitProfile)}
                     sx={{ maxWidth: 500 }}
                 >
                     <TextField
                         fullWidth
                         label="First Name"
                         margin="normal"
-                        {...register("firstName", { required: "First name is required" })}
-                        error={!!errors.firstName}
-                        helperText={errors.firstName?.message}
+                        {...registerProfile("firstName", { required: "First name is required" })}
+                        error={!!profileErrors.firstName}
+                        helperText={profileErrors.firstName?.message}
                     />
                     <TextField
                         fullWidth
                         label="Last Name"
                         margin="normal"
-                        {...register("lastName", { required: "Last name is required" })}
-                        error={!!errors.lastName}
-                        helperText={errors.lastName?.message}
+                        {...registerProfile("lastName", { required: "Last name is required" })}
+                        error={!!profileErrors.lastName}
+                        helperText={profileErrors.lastName?.message}
                     />
                     <TextField
                         fullWidth
                         label="Email"
                         margin="normal"
-                        {...register("email")}
+                        {...registerProfile("email")}
                         disabled
                         InputLabelProps={{ shrink: true }}
                     />
@@ -187,7 +197,7 @@ const SettingsPage = () => {
                 <Divider sx={{ mb: 3 }} />
                 <Box
                     component="form"
-                    onSubmit={handleSubmit(onSubmitPassword)}
+                    onSubmit={handleSubmitPassword(onSubmitPassword)}
                     sx={{ maxWidth: 500 }}
                 >
                     <TextField
@@ -195,11 +205,11 @@ const SettingsPage = () => {
                         label="Current Password"
                         margin="normal"
                         type={showPassword ? "text" : "password"}
-                        {...register("currentPassword", {
+                        {...registerPassword("currentPassword", {
                             required: "Current password is required",
                         })}
-                        error={!!errors.currentPassword}
-                        helperText={errors.currentPassword?.message}
+                        error={!!passwordErrors.currentPassword}
+                        helperText={passwordErrors.currentPassword?.message}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -218,15 +228,15 @@ const SettingsPage = () => {
                         label="New Password"
                         margin="normal"
                         type={showNewPassword ? "text" : "password"}
-                        {...register("newPassword", {
+                        {...registerPassword("newPassword", {
                             required: "New password is required",
                             minLength: {
                                 value: 8,
                                 message: "Password must be at least 8 characters",
                             },
                         })}
-                        error={!!errors.newPassword}
-                        helperText={errors.newPassword?.message}
+                        error={!!passwordErrors.newPassword}
+                        helperText={passwordErrors.newPassword?.message}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -245,13 +255,13 @@ const SettingsPage = () => {
                         label="Confirm New Password"
                         margin="normal"
                         type={showConfirmPassword ? "text" : "password"}
-                        {...register("confirmPassword", {
+                        {...registerPassword("confirmPassword", {
                             required: "Please confirm your password",
                             validate: (value) =>
-                                value === watch("newPassword") || "Passwords don't match",
+                                value === watchPassword("newPassword") || "Passwords don't match",
                         })}
-                        error={!!errors.confirmPassword}
-                        helperText={errors.confirmPassword?.message}
+                        error={!!passwordErrors.confirmPassword}
+                        helperText={passwordErrors.confirmPassword?.message}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">

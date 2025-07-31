@@ -264,7 +264,7 @@ const JobSeekerDashboard = ({ role = role }) => {
           >
             Skill Distribution
           </Typography>
-          <div className="h-64 sm:h-72 md:h-80 lg:h-96">
+          <div className="h-80 sm:h-96 md:h-112 lg:h-128">
             <DoughnutChart
               data={[
                 { id: "Beginner", value: skill_distribution.begginner },

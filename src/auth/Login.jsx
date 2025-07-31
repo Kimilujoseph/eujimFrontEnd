@@ -43,13 +43,15 @@ const Login = () => {
         navigate("/");
       } else if (res.data.user.role === "employer") {
         navigate("/employer-dashboard");
+      } else if (res.data.user.role === "jobseeker") {
+        navigate("/job-feeds");
       } else {
-        navigate("/job-seeker-dashboard/")
+        navigate("/");
       }
     } catch (err) {
       console.log(err);
       if (err.response?.status === 401) {
-        setError(err.response?.detail);
+        setError("Invalid email or password. Please try again.");
       } else if (err.response?.status === 500) {
         setError("Server error. Please try again later.");
       } else {

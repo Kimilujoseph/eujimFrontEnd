@@ -135,6 +135,8 @@ const Sidebar = ({ isSidebar = true }) => {
     }
   };
 
+  
+
   return (
     <Drawer
       variant="persistent"

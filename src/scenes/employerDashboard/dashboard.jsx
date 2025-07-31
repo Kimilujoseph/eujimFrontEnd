@@ -69,12 +69,20 @@ const RecruiterDashboard = () => {
         );
     }
 
+    if (Array.isArray(dashboardData) && dashboardData.length === 0) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                <Typography variant="h6">No dashboard data to display yet.</Typography>
+            </Box>
+        );
+    }
+
     const {
-        recruitment_overview,
-        performance_metrics,
-        document_status,
-        recent_activities,
-        skill_insights,
+        recruitment_overview = { total_candidates: 0, hired: 0, interviewed: 0, shortlisted: 0, rejected: 0 },
+        performance_metrics = { weekly_activity: [], avg_time_to_respond: '0', interviewed_count: 0, shortlisted_count: 0 },
+        document_status = { total_documents: 0, pending: 0, approved: 0, latest_document: null },
+        recent_activities = [],
+        skill_insights = [],
     } = dashboardData;
 
     const weeklyActivityData = performance_metrics.weekly_activity.map((item) => ({
