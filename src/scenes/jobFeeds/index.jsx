@@ -381,6 +381,9 @@ const JobFeeds = () => {
         }}>
             <Box sx={{ flexGrow: 1, maxWidth: '800px' }}>
                 <Header title="Job Feeds" subtitle="Browse and apply for jobs" />
+                <Button variant="contained" color="secondary" onClick={() => navigate("/external-jobs")} sx={{ mb: 2 }}>
+                    View Jobs From Other Sources
+                </Button>
                 <TextField
                     fullWidth
                     variant="outlined"

@@ -21,6 +21,7 @@ import InterviewHistory from "./scenes/recruitmentHistory/index";
 import ProtectedRoute from "./auth/protectedRoute";
 import SettingsPage from "./scenes/global/settings"
 import JobFeeds from "./scenes/jobFeeds";
+import ScrapedJobs from "./scenes/scrapedJobs";
 import JobPostingManagement from "./scenes/job_posting";
 import { AuthProvider } from "./auth/authContext";
 function App() {
@@ -100,6 +101,7 @@ function App() {
                       <Route path="/employer/recruitment-history" element={<InterviewHistory />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/job-feeds" element={<JobFeeds />} />
+                      <Route path="/external-jobs" element={<ScrapedJobs />} />
                       <Route path="/job-posting" element={<JobPostingManagement />} />
                       <Route
                         path="/job-seeker-dashboard/"
